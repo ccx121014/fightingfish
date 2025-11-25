@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>划拳小鱼版 - 死亡终结版</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3B82F6',
+            secondary: '#F97316',
+            success: '#10B981',
+            danger: '#EF4444',
+            warning: '#F59E0B',
+            info: '#3B82F6',
+            light: '#F3F4F6',
+            dark: '#1F2937',
+            'underwater-100': '#E0F2FE',
+            'underwater-200': '#BAE6FD',
+            'underwater-300': '#7DD3FC',
+            'underwater-400': '#38BDF8',
+            'underwater-500': '#0EA5E9',
+            'underwater-600': '#0284C7',
+            'underwater-700': '#0369A1',
+            'underwater-800': '#075985',
+            'underwater-900': '#0C4A6E',
+          },
+          fontFamily: {
+            sans: ['Arial', 'sans-serif'],
+          },
+          animation: {
+            'bounce-slow': 'bounce 2s infinite',
+            'float': 'float 3s ease-in-out infinite',
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'bubble': 'bubble 3s ease-in-out infinite',
+            'damage': 'damage 0.5s ease-in-out',
+            'heal': 'heal 0.5s ease-in-out',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' },
+            },
+            bubble: {
+              '0%': { transform: 'translateY(0) scale(1)', opacity: '0' },
+              '50%': { transform: 'translateY(-20px) scale(1.1)', opacity: '1' },
+              '100%': { transform: 'translateY(-40px) scale(0.9)', opacity: '0' },
+            },
+            damage: {
+              '0%, 100%': { transform: 'translateX(0)' },
+              '25%': { transform: 'translateX(-10px)', backgroundColor: 'rgba(239, 68, 68, 0.3)' },
+              '75%': { transform: 'translateX(10px)', backgroundColor: 'rgba(239, 68, 68, 0.3)' },
+            },
+            heal: {
+              '0%, 100%': { backgroundColor: 'transparent' },
+              '50%': { backgroundColor: 'rgba(16, 185, 129, 0.3)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .text-shadow {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+      .text-shadow-lg {
+        text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
+      }
+      .glass {
+        background: rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+      }
+      .glass-dark {
+        background: rgba(31, 41, 55, 0.7);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .bubble {
+        position: absolute;
+        background-color: rgba(255, 255, 255, 0.7);
+        border-radius: 50%;
+        animation: bubble 3s ease-in-out infinite;
+      }
+      .move-btn {
+        transition: all 0.2s ease;
+      }
+      .move-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+      .move-btn:active {
+        transform: scale(0.95);
+      }
+      .move-btn:disabled {
+        opacity: 0.5;
+        transform: none;
+        box-shadow: none;
+        cursor: not-allowed;
+      }
+      .health-bar {
+        height: 10px;
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 5px;
+        overflow: hidden;
+      }
+      .health-fill {
+        height: 100%;
+        background-color: #10B981;
+        transition: width 0.5s ease;
+      }
+      .health-fill.low {
+        background-color: #F59E0B;
+      }
+      .health-fill.critical {
+        background-color: #EF4444;
+      }
+    }
+  </style>
+</head>
+<body class="bg-underwater-500 min-h-screen overflow-x-hidden">
+  <!-- 背景气泡 -->
+  <div id="bubbles-container" class="fixed inset-0 pointer-events-none overflow-hidden"></div>
+  
+  <!-- 主容器 -->
+  <div id="app" class="relative min-h-screen flex flex-col items-center justify-center p-4">
+    <!-- 标题区域 -->
+    <div class="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10">
+      <h1 class="text-3xl md:text-4xl font-bold text-white text-shadow-lg">划拳小鱼版</h1>
+      <div class="flex gap-2">
+        <button id="rules-btn" class="bg-underwater-700 hover:bg-underwater-600 text-white px-4 py-2 rounded-full transition-all duration-300 flex items-center gap-2">
+          <i class="fa fa-book"></i>
+          <span>规则</span>
+        </button>
+        <button id="settings-btn" class="bg-underwater-700 hover:bg-underwater-600 text-white px-4 py-2 rounded-full transition-all duration-300 flex items-center gap-2">
+          <i class="fa fa-cog"></i>
+          <span>设置</span>
+        </button>
+      </div>
+    </div>
+    
+    <!-- 主菜单 -->
+    <div id="main-menu" class="flex flex-col items-center justify-center gap-8 w-full max-w-4xl">
+      <!-- 游戏Logo -->
+      <div class="relative w-64 h-64 mb-8 animate-float">
+        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/9819b258517d48b4b2c11cd70d71750d~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771558&x-signature=RYauULUPUxEZQEjfjEJsO%2FvVjhY%3D" 
+             alt="小鱼Logo" 
+             class="w-full h-full object-contain">
+        <div class="absolute -top-4 -right-4 bg-yellow-400 text-white text-xl font-bold px-4 py-2 rounded-full transform rotate-12 shadow-lg">
+          死亡版
+        </div>
+      </div>
+      
+      <!-- 游戏模式选择 -->
+      <div class="flex flex-col gap-4 w-full max-w-md">
+        <button id="single-player-btn" class="bg-underwater-600 hover:bg-underwater-500 text-white text-xl font-bold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-4 shadow-lg">
+          <i class="fa fa-user"></i>
+          <span>单人模式</span>
+        </button>
+        <button id="multi-player-btn" class="bg-underwater-600 hover:bg-underwater-500 text-white text-xl font-bold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-4 shadow-lg">
+          <i class="fa fa-users"></i>
+          <span>多人联机</span>
+        </button>
+        <button id="practice-btn" class="bg-underwater-600 hover:bg-underwater-500 text-white text-xl font-bold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-4 shadow-lg">
+          <i class="fa fa-lightbulb-o"></i>
+          <span>练习模式</span>
+        </button>
+      </div>
+      
+      <!-- 排行榜 -->
+      <div class="w-full max-w-md glass rounded-xl p-6 shadow-lg">
+        <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+          <i class="fa fa-trophy"></i>
+          <span>排行榜</span>
+        </h2>
+        <div class="space-y-3">
+          <div class="flex justify-between items-center text-white">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center font-bold">1</div>
+              <span>玩家123</span>
+            </div>
+            <span>99胜</span>
+          </div>
+          <div class="flex justify-between items-center text-white">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center font-bold">2</div>
+              <span>小鱼爱好者</span>
+            </div>
+            <span>87胜</span>
+          </div>
+          <div class="flex justify-between items-center text-white">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 bg-amber-700 rounded-full flex items-center justify-center font-bold">3</div>
+              <span>划拳大师</span>
+            </div>
+            <span>76胜</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 游戏界面 -->
+    <div id="game-screen" class="hidden w-full max-w-6xl flex flex-col items-center gap-6">
+      <!-- 游戏状态区域 -->
+      <div class="w-full glass rounded-xl p-4 flex justify-between items-center">
+        <div class="flex items-center gap-4">
+          <div class="bg-underwater-700 text-white px-4 py-2 rounded-full">
+            回合: <span id="round-counter">1</span>
+          </div>
+          <div class="bg-underwater-700 text-white px-4 py-2 rounded-full">
+            子弹: <span id="bullet-counter">0</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <button id="surrender-btn" class="bg-danger hover:bg-red-600 text-white px-4 py-2 rounded-full transition-all duration-300">
+            投降
+          </button>
+          <button id="pause-btn" class="bg-underwater-700 hover:bg-underwater-600 text-white px-4 py-2 rounded-full transition-all duration-300">
+            暂停
+          </button>
+        </div>
+      </div>
+      
+      <!-- 玩家区域 -->
+      <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- 对手区域 -->
+        <div class="glass rounded-xl p-6 flex flex-col items-center">
+          <div class="text-xl font-bold text-white mb-2">对手</div>
+          <div class="w-full mb-4">
+            <div class="health-bar w-full">
+              <div id="opponent-health" class="health-fill" style="width: 100%"></div>
+            </div>
+            <div class="text-right text-white text-sm mt-1">
+              <span id="opponent-health-text">100/100</span>
+            </div>
+          </div>
+          <div class="relative w-48 h-48 mb-4">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div id="opponent-avatar" class="w-32 h-32 rounded-full bg-underwater-300 flex items-center justify-center">
+                <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/00d8746f46534e569e06c8896415abe3~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771573&x-signature=ni%2B8RwbSCUFPQ8OF5WGepIVWXYA%3D" 
+                     alt="对手" 
+                     class="w-24 h-24 object-contain">
+              </div>
+            </div>
+            <div id="opponent-bullets" class="absolute -top-4 -right-4 bg-underwater-700 text-white px-3 py-1 rounded-full text-sm">
+              子弹: 0
+            </div>
+          </div>
+          <div id="opponent-move" class="w-24 h-24 mb-4 hidden">
+            <!-- 对手选择的招式将在这里显示 -->
+          </div>
+          <div class="flex gap-2 flex-wrap justify-center">
+            <div class="bg-underwater-700 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
+              <i class="fa fa-refresh"></i>
+              <span id="opponent-counterattack">0/2</span>
+            </div>
+            <div class="bg-underwater-700 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
+              <i class="fa fa-bolt"></i>
+              <span id="opponent-mega-counterattack">0/1</span>
+            </div>
+            <div class="bg-underwater-700 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
+              <i class="fa fa-bomb"></i>
+              <span id="opponent-mine">0/2</span>
+            </div>
+            <div class="bg-underwater-700 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
+              <i class="fa fa-fish"></i>
+              <span id="opponent-fish">0/1</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 玩家区域 -->
+        <div class="glass rounded-xl p-6 flex flex-col items-center">
+          <div class="text-xl font-bold text-white mb-2">玩家</div>
+          <div class="w-full mb-4">
+            <div class="health-bar w-full">
+              <div id="player-health" class="health-fill" style="width: 100%"></div>
+            </div>
+            <div class="text-right text-white text-sm mt-1">
+              <span id="player-health-text">100/100</span>
+            </div>
+          </div>
+          <div class="relative w-48 h-48 mb-4">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div id="player-avatar" class="w-32 h-32 rounded-full bg-underwater-300 flex items-center justify-center">
+                <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/9819b258517d48b4b2c11cd70d71750d~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771558&x-signature=RYauULUPUxEZQEjfjEJsO%2FvVjhY%3D" 
+                     alt="玩家" 
+                     class="w-24 h-24 object-contain">
+              </div>
+            </div>
+            <div id="player-bullets" class="absolute -top-4 -right-4 bg-underwater-700 text-white px-3 py-1 rounded-full text-sm">
+              子弹: 0
+            </div>
+          </div>
+          <div id="player-move" class="w-24 h-24 mb-4 hidden">
+            <!-- 玩家选择的招式将在这里显示 -->
+          </div>
+          <div class="flex gap-2 flex-wrap justify-center">
+            <div class="bg-underwater-700 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
+              <i class="fa fa-refresh"></i>
+              <span id="player-counterattack">2/2</span>
+            </div>
+            <div class="bg-underwater-700 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
+              <i class="fa fa-bolt"></i>
+              <span id="player-mega-counterattack">1/1</span>
+            </div>
+            <div class="bg-underwater-700 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
+              <i class="fa fa-bomb"></i>
+              <span id="player-mine">2/2</span>
+            </div>
+            <div class="bg-underwater-700 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
+              <i class="fa fa-fish"></i>
+              <span id="player-fish">1/1</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 战斗结果区域 -->
+      <div id="battle-result" class="hidden w-full glass rounded-xl p-6 text-center">
+        <h3 class="text-2xl font-bold text-white mb-4">战斗结果</h3>
+        <p id="result-message" class="text-xl text-white mb-6"></p>
+        <div class="flex justify-center gap-4">
+          <button id="continue-btn" class="bg-underwater-600 hover:bg-underwater-500 text-white px-6 py-3 rounded-xl transition-all duration-300">
+            继续游戏
+          </button>
+          <button id="end-game-btn" class="bg-danger hover:bg-red-600 text-white px-6 py-3 rounded-xl transition-all duration-300">
+            结束游戏
+          </button>
+        </div>
+      </div>
+      
+      <!-- 游戏结束区域 -->
+      <div id="game-over" class="hidden w-full glass rounded-xl p-6 text-center">
+        <h3 class="text-3xl font-bold text-white mb-4" id="game-over-title">游戏结束</h3>
+        <p id="game-over-message" class="text-xl text-white mb-6"></p>
+        <div class="flex justify-center gap-4">
+          <button id="play-again-btn" class="bg-underwater-600 hover:bg-underwater-500 text-white px-6 py-3 rounded-xl transition-all duration-300">
+            再来一局
+          </button>
+          <button id="back-to-menu-btn" class="bg-danger hover:bg-red-600 text-white px-6 py-3 rounded-xl transition-all duration-300">
+            返回主菜单
+          </button>
+        </div>
+      </div>
+      
+      <!-- 招式选择区域 -->
+      <div id="moves-container" class="w-full glass rounded-xl p-6">
+        <h3 class="text-xl font-bold text-white mb-4">选择招式</h3>
+        
+        <!-- 第一行招式 -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+          <button data-move="up" class="move-btn bg-underwater-700 hover:bg-underwater-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2">
+            <div class="w-12 h-12 flex items-center justify-center">
+              <i class="fa fa-arrow-up text-2xl"></i>
+            </div>
+            <span>上弹</span>
+            <span class="text-xs text-underwater-200">子弹+1</span>
+          </button>
+          
+          <button data-move="single_shot" class="move-btn bg-underwater-700 hover:bg-underwater-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2">
+            <div class="w-12 h-12 flex items-center justify-center">
+              <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/24ba51f2056848bf8d98e2a4d7af67c9~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=YxwPtiT%2FKwurRfBuDbLBVlkXhJU%3D" 
+                   alt="单枪" 
+                   class="w-10 h-10 object-contain">
+            </div>
+            <span>单枪</span>
+            <span class="text-xs text-underwater-200">消耗1子弹</span>
+          </button>
+          
+          <button data-move="double_shot" class="move-btn bg-underwater-700 hover:bg-underwater-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2">
+            <div class="w-12 h-12 flex items-center justify-center">
+              <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/953ba657f98c4af590a3a9ffb068ee33~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771573&x-signature=umpX4nPd6707EJBaXelVevR5dp0%3D" 
+                   alt="双枪" 
+                   class="w-10 h-10 object-contain">
+            </div>
+            <span>双枪</span>
+            <span class="text-xs text-underwater-200">消耗2子弹</span>
+          </button>
+          
+          <button data-move="normal_defense" class="move-btn bg-underwater-700 hover:bg-underwater-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2">
+            <div class="w-12 h-12 flex items-center justify-center">
+              <img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/914cfb6422814f2ca3b488d472d438de~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=xHiYAL2Zw68YX31AO%2Bfe796qPwQ%3D" 
+                   alt="普防" 
+                   class="w-10 h-10 object-contain">
+            </div>
+            <span>普防</span>
+            <span class="text-xs text-underwater-200">无需子弹</span>
+          </button>
+        </div>
+        
+        <!-- 第二行招式 -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+          <button data-move="wave" class="move-btn bg-underwater-700 hover:bg-underwater-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2">
+            <div class="w-12 h-12 flex items-center justify-center">
+              <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/be36076b34ca47e785e64788cdef0800~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=v4H4PI306eJpF8N1UXZTAKpnamc%3D" 
+                   alt="波" 
+                   class="w-10 h-10 object-contain">
+            </div>
+            <span>波</span>
+            <span class="text-xs text-underwater-200">消耗3子弹</span>
+          </button>
+          
+          <button data-move="wave_defense" class="move-btn bg-underwater-700 hover:bg-underwater-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2">
+            <div class="w-12 h-12 flex items-center justify-center">
+              <div class="relative">
+                <img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/914cfb6422814f2ca3b488d472d438de~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=xHiYAL2Zw68YX31AO%2Bfe796qPwQ%3D" 
+                     alt="波防" 
+                     class="w-10 h-10 object-contain">
+                <div class="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                  <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/be36076b34ca47e785e64788cdef0800~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=v4H4PI306eJpF8N1UXZTAKpnamc%3D" 
+                       alt="波" 
+                       class="w-2 h-2 object-contain">
+                </div>
+              </div>
+            </div>
+            <span>波防</span>
+            <span class="text-xs text-underwater-200">无需子弹</span>
+          </button>
+          
+          <button data-move="counterattack" class="move-btn bg-underwater-700 hover:bg-underwater-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2">
+            <div class="w-12 h-12 flex items-center justify-center">
+              <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/ff17e89747674845af0efc34d4d882b7~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771573&x-signature=oawjE4RNiRA2jweYGRnppgjNtCI%3D" 
+                   alt="单反" 
+                   class="w-10 h-10 object-contain">
+            </div>
+            <span>单反</span>
+            <span class="text-xs text-underwater-200">2次/局</span>
+          </button>
+          
+          <button data-move="mega_counterattack" class="move-btn bg-underwater-700 hover:bg-underwater-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2" disabled>
+            <div class="w-12 h-12 flex items-center justify-center">
+              <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/ff17e89747674845af0efc34d4d882b7~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771573&x-signature=oawjE4RNiRA2jweYGRnppgjNtCI%3D" 
+                   alt="巨反" 
+                   class="w-10 h-10 object-contain">
+            </div>
+            <span>巨反</span>
+            <span class="text-xs text-underwater-200">1次/局 (4回合后)</span>
+          </button>
+        </div>
+        
+        <!-- 第三行招式 -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <button data-move="mine" class="move-btn bg-underwater-700 hover:bg-underwater-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2" disabled>
+            <div class="w-12 h-12 flex items-center justify-center">
+              <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/b3c34558e89d461c8fcbdeab0c60fcd0~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=gTfUjPEMy9OtNDmHt0jz4WHjx9k%3D" 
+                   alt="地雷" 
+                   class="w-10 h-10 object-contain">
+            </div>
+            <span>地雷</span>
+            <span class="text-xs text-underwater-200">2次/局 (4回合后)</span>
+          </button>
+          
+          <button data-move="fish" class="move-btn bg-underwater-700 hover:bg-underwater-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2">
+            <div class="w-12 h-12 flex items-center justify-center">
+              <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/00d8746f46534e569e06c8896415abe3~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771573&x-signature=ni%2B8RwbSCUFPQ8OF5WGepIVWXYA%3D" 
+                   alt="小鱼" 
+                   class="w-10 h-10 object-contain">
+            </div>
+            <span>小鱼</span>
+            <span class="text-xs text-underwater-200">1次/局</span>
+          </button>
+          
+          <button data-move="nuke" class="move-btn bg-underwater-700 hover:bg-underwater-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2">
+            <div class="w-12 h-12 flex items-center justify-center">
+              <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/4db8a8ef792e43dcb5485f79b182b390~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=1ATi%2Bv%2Fbx3YNO%2FO%2FTsLy9lsM6go%3D" 
+                   alt="核弹" 
+                   class="w-10 h-10 object-contain">
+            </div>
+            <span>核弹</span>
+            <span class="text-xs text-underwater-200">消耗5子弹</span>
+          </button>
+          
+          <button data-move="nuke_defense" class="move-btn bg-underwater-700 hover:bg-underwater-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2">
+            <div class="w-12 h-12 flex items-center justify-center">
+              <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/4adaf6f684ea4cd1b36e55da20a822a0~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771573&x-signature=69HLARNyDtkk46bvqAQT1wrYNbo%3D" 
+                   alt="核防" 
+                   class="w-10 h-10 object-contain">
+            </div>
+            <span>核防</span>
+            <span class="text-xs text-underwater-200">无需子弹</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 规则弹窗 -->
+    <div id="rules-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+      <div class="bg-underwater-800 text-white rounded-xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-bold">游戏规则</h2>
+          <button id="close-rules-btn" class="text-white hover:text-underwater-200">
+            <i class="fa fa-times text-xl"></i>
+          </button>
+        </div>
+        
+        <div class="space-y-4">
+          <div class="bg-underwater-700 p-4 rounded-lg">
+            <h3 class="text-xl font-bold mb-2">基本规则</h3>
+            <p>划拳小鱼版是一款基于传统划拳游戏的对战游戏。玩家通过选择不同的招式进行对战，目标是将对方的生命值降至0。</p>
+          </div>
+          
+          <div class="bg-underwater-700 p-4 rounded-lg">
+            <h3 class="text-xl font-bold mb-2">生命值系统</h3>
+            <p>双方初始生命值均为100点，当一方生命值降至0时，游戏结束，另一方获胜。</p>
+          </div>
+          
+          <div class="bg-underwater-700 p-4 rounded-lg">
+            <h3 class="text-xl font-bold mb-2">招式说明</h3>
+            <ul class="space-y-2">
+              <li><span class="font-bold">上弹</span> - 子弹数量+1</li>
+              <li><span class="font-bold">单枪</span> - 需要一颗子弹打出单枪，可以杀死上弹、波防、核防（造成15点伤害）</li>
+              <li><span class="font-bold">双枪</span> - 需要两颗子弹打出双枪，可以杀死上弹、波防和单枪、核防、地雷（造成25点伤害）</li>
+              <li><span class="font-bold">普防</span> - 可以防御单枪、双枪，不需要子弹</li>
+              <li><span class="font-bold">波</span> - 需要三颗子弹打出波，可以杀死上弹、单枪、普防、单反、核防、地雷和双枪（造成35点伤害）</li>
+              <li><span class="font-bold">波防</span> - 可以防御波、小鱼，可以反弹地雷，不需要子弹</li>
+              <li><span class="font-bold">单反</span> - 一局有两次，可以反弹全局单枪、双枪，不可以连出</li>
+              <li><span class="font-bold">巨反</span> - 一局有一次，可以反弹全局所有东西，必须在第4回合及以后出</li>
+              <li><span class="font-bold">地雷</span> - 一局有两次，必须在第4回合及以后出，可以杀死上弹、单枪，会被波防反弹（造成20点伤害）</li>
+              <li><span class="font-bold">小鱼</span> - 可以吸取别人的子弹，一局仅能出一次。如果有巨反，则会让吸的人吸自己。若有多个人吸一个人，则均分向下取整</li>
+              <li><span class="font-bold">核弹</span> - 全局攻击，可以杀死除了核防和巨反的所有东西（造成50点伤害）</li>
+              <li><span class="font-bold">核防</span> - 可以防御核弹，不需要子弹</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 设置弹窗 -->
+    <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+      <div class="bg-underwater-800 text-white rounded-xl p-6 max-w-md w-full">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-bold">设置</h2>
+          <button id="close-settings-btn" class="text-white hover:text-underwater-200">
+            <i class="fa fa-times text-xl"></i>
+          </button>
+        </div>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block mb-2">音效音量</label>
+            <input type="range" min="0" max="100" value="80" class="w-full">
+          </div>
+          
+          <div>
+            <label class="block mb-2">背景音乐音量</label>
+            <input type="range" min="0" max="100" value="50" class="w-full">
+          </div>
+          
+          <div class="flex items-center justify-between">
+            <span>音效</span>
+            <label class="switch">
+              <input type="checkbox" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+          
+          <button class="w-full bg-underwater-600 hover:bg-underwater-500 text-white py-3 rounded-xl transition-all duration-300">
+            保存设置
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 暂停弹窗 -->
+    <div id="pause-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+      <div class="bg-underwater-800 text-white rounded-xl p-6 max-w-md w-full text-center">
+        <h2 class="text-2xl font-bold mb-6">游戏暂停</h2>
+        
+        <div class="space-y-4">
+          <button id="resume-btn" class="w-full bg-underwater-600 hover:bg-underwater-500 text-white py-3 rounded-xl transition-all duration-300">
+            继续游戏
+          </button>
+          
+          <button id="pause-rules-btn" class="w-full bg-underwater-700 hover:bg-underwater-600 text-white py-3 rounded-xl transition-all duration-300">
+            查看规则
+          </button>
+          
+          <button id="exit-to-menu-btn" class="w-full bg-danger hover:bg-red-600 text-white py-3 rounded-xl transition-all duration-300">
+            返回主菜单
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 多人联机弹窗 -->
+    <div id="multiplayer-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+      <div class="bg-underwater-800 text-white rounded-xl p-6 max-w-md w-full">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-bold">多人联机</h2>
+          <button id="close-multiplayer-btn" class="text-white hover:text-underwater-200">
+            <i class="fa fa-times text-xl"></i>
+          </button>
+        </div>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block mb-2">房间ID</label>
+            <div class="flex gap-2">
+              <input type="text" id="room-id-input" placeholder="输入房间ID" class="flex-1 bg-underwater-700 border border-underwater-600 rounded-lg px-4 py-2 text-white">
+              <button id="join-room-btn" class="bg-underwater-600 hover:bg-underwater-500 text-white px-4 py-2 rounded-lg transition-all duration-300">
+                加入
+              </button>
+            </div>
+          </div>
+          
+          <button id="create-room-btn" class="w-full bg-underwater-600 hover:bg-underwater-500 text-white py-3 rounded-xl transition-all duration-300">
+            创建房间
+          </button>
+          
+          <div class="text-center text-underwater-200 text-sm">
+            或
+          </div>
+          
+          <button class="w-full bg-underwater-700 hover:bg-underwater-600 text-white py-3 rounded-xl transition-all duration-300">
+            快速匹配
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 房间创建成功弹窗 -->
+    <div id="room-created-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+      <div class="bg-underwater-800 text-white rounded-xl p-6 max-w-md w-full text-center">
+        <h2 class="text-2xl font-bold mb-4">房间创建成功</h2>
+        
+        <div class="bg-underwater-700 p-4 rounded-lg mb-6">
+          <p class="text-lg">房间ID: <span id="created-room-id" class="font-bold text-xl">123456</span></p>
+        </div>
+        
+        <p class="mb-6">等待其他玩家加入...</p>
+        
+        <div class="flex gap-4">
+          <button id="copy-room-id-btn" class="flex-1 bg-underwater-700 hover:bg-underwater-600 text-white py-3 rounded-xl transition-all duration-300">
+            复制房间ID
+          </button>
+          <button id="cancel-room-btn" class="flex-1 bg-danger hover:bg-red-600 text-white py-3 rounded-xl transition-all duration-300">
+            取消
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 底部版权信息 -->
+    <div class="absolute bottom-0 left-0 right-0 p-4 text-center text-white text-sm">
+      <p>? 2025 划拳小鱼版 - 死亡终结版</p>
+    </div>
+  </div>
+  
+  <script>
+    // 游戏状态 - 新增生命值系统
+    const gameState = {
+      round: 1,
+      playerBullets: 0,
+      opponentBullets: 0,
+      playerHealth: 100,
+      opponentHealth: 100,
+      playerMoves: {
+        counterattack: 2,
+        megaCounterattack: 1,
+        mine: 2,
+        fish: 1
+      },
+      opponentMoves: {
+        counterattack: 2,
+        megaCounterattack: 1,
+        mine: 2,
+        fish: 1
+      },
+      gameActive: false,
+      currentMove: null,
+      opponentMove: null,
+      gameMode: 'single' // 'single', 'multi', 'practice'
+    };
+    
+    // 招式伤害值
+    const moveDamage = {
+      single_shot: 15,
+      double_shot: 25,
+      wave: 35,
+      mine: 20,
+      nuke: 50
+    };
+    
+    // 招式图片映射
+    const moveImages = {
+      up: '<i class="fa fa-arrow-up text-4xl text-underwater-500"></i>',
+      single_shot: '<img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/24ba51f2056848bf8d98e2a4d7af67c9~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=YxwPtiT%2FKwurRfBuDbLBVlkXhJU%3D" alt="单枪" class="w-full h-full object-contain">',
+      double_shot: '<img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/953ba657f98c4af590a3a9ffb068ee33~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771573&x-signature=umpX4nPd6707EJBaXelVevR5dp0%3D" alt="双枪" class="w-full h-full object-contain">',
+      normal_defense: '<img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/914cfb6422814f2ca3b488d472d438de~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=xHiYAL2Zw68YX31AO%2Bfe796qPwQ%3D" alt="普防" class="w-full h-full object-contain">',
+      wave: '<img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/be36076b34ca47e785e64788cdef0800~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=v4H4PI306eJpF8N1UXZTAKpnamc%3D" alt="波" class="w-full h-full object-contain">',
+      wave_defense: '<div class="relative w-full h-full"><img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/914cfb6422814f2ca3b488d472d438de~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=xHiYAL2Zw68YX31AO%2Bfe796qPwQ%3D" alt="波防" class="w-full h-full object-contain"><div class="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center"><img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/be36076b34ca47e785e64788cdef0800~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=v4H4PI306eJpF8N1UXZTAKpnamc%3D" alt="波" class="w-2 h-2 object-contain"></div></div>',
+      counterattack: '<img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/ff17e89747674845af0efc34d4d882b7~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771573&x-signature=oawjE4RNiRA2jweYGRnppgjNtCI%3D" alt="单反" class="w-full h-full object-contain">',
+      mega_counterattack: '<img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/ff17e89747674845af0efc34d4d882b7~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771573&x-signature=oawjE4RNiRA2jweYGRnppgjNtCI%3D" alt="巨反" class="w-full h-full object-contain">',
+      mine: '<img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/b3c34558e89d461c8fcbdeab0c60fcd0~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=gTfUjPEMy9OtNDmHt0jz4WHjx9k%3D" alt="地雷" class="w-full h-full object-contain">',
+      fish: '<img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/00d8746f46534e569e06c8896415abe3~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771573&x-signature=ni%2B8RwbSCUFPQ8OF5WGepIVWXYA%3D" alt="小鱼" class="w-full h-full object-contain">',
+      nuke: '<img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/4db8a8ef792e43dcb5485f79b182b390~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=1ATi%2Bv%2Fbx3YNO%2FO%2FTsLy9lsM6go%3D" alt="核弹" class="w-full h-full object-contain">',
+      nuke_defense: '<img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/4adaf6f684ea4cd1b36e55da20a822a0~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771573&x-signature=69HLARNyDtkk46bvqAQT1wrYNbo%3D" alt="核防" class="w-full h-full object-contain">'
+    };
+    
+    // 招式名称映射
+    const moveNames = {
+      up: '上弹',
+      single_shot: '单枪',
+      double_shot: '双枪',
+      normal_defense: '普防',
+      wave: '波',
+      wave_defense: '波防',
+      counterattack: '单反',
+      mega_counterattack: '巨反',
+      mine: '地雷',
+      fish: '小鱼',
+      nuke: '核弹',
+      nuke_defense: '核防'
+    };
+    
+    // 招式相克关系
+    const moveRelations = {
+      up: {
+        beats: [],
+        losesTo: ['single_shot', 'double_shot', 'wave', 'mine', 'nuke'],
+        blocks: [],
+        description: '子弹数量+1'
+      },
+      single_shot: {
+        beats: ['up', 'wave_defense', 'nuke_defense'],
+        losesTo: ['normal_defense', 'wave', 'counterattack', 'mega_counterattack', 'mine', 'nuke'],
+        blocks: [],
+        cost: 1,
+        damage: 15,
+        description: '需要一颗子弹打出单枪，可以杀死上弹、波防、核防'
+      },
+      double_shot: {
+        beats: ['up', 'wave_defense', 'single_shot', 'nuke_defense', 'mine'],
+        losesTo: ['normal_defense', 'wave', 'counterattack', 'mega_counterattack', 'nuke'],
+        blocks: [],
+        cost: 2,
+        damage: 25,
+        description: '需要两颗子弹打出双枪，可以杀死上弹、波防和单枪、核防、地雷'
+      },
+      normal_defense: {
+        beats: ['single_shot', 'double_shot'],
+        losesTo: ['wave', 'nuke'],
+        blocks: [],
+        description: '可以防御单枪、双枪，不需要子弹'
+      },
+      wave: {
+        beats: ['up', 'single_shot', 'normal_defense', 'counterattack', 'nuke_defense', 'mine', 'double_shot'],
+        losesTo: ['wave_defense', 'mega_counterattack', 'nuke'],
+        blocks: [],
+        cost: 3,
+        damage: 35,
+        description: '需要三颗子弹打出波，可以杀死上弹、单枪、普防、单反、核防、地雷和双枪'
+      },
+      wave_defense: {
+        beats: ['wave', 'fish'],
+        losesTo: ['single_shot', 'double_shot', 'nuke'],
+        reflects: ['mine'],
+        description: '可以防御波、小鱼，可以反弹地雷，不需要子弹'
+      },
+      counterattack: {
+        beats: ['single_shot', 'double_shot'],
+        losesTo: ['wave', 'wave_defense', 'nuke'],
+        reflects: ['single_shot', 'double_shot'],
+        limit: 2,
+        description: '一局有两次，可以反弹全局单枪、双枪，不可以连出'
+      },
+      mega_counterattack: {
+        beats: [],
+        losesTo: [],
+        reflects: ['all'],
+        limit: 1,
+        roundLimit: 4,
+        description: '一局有一次，可以反弹全局所有东西，必须在第4回合及以后出'
+      },
+      mine: {
+        beats: ['up', 'single_shot'],
+        losesTo: ['double_shot', 'wave', 'wave_defense', 'nuke'],
+        blocks: [],
+        limit: 2,
+        roundLimit: 4,
+        damage: 20,
+        description: '一局有两次，必须在第4回合及以后出，可以杀死上弹、单枪，会被波防反弹'
+      },
+      fish: {
+        beats: [],
+        losesTo: ['wave_defense', 'mega_counterattack', 'nuke'],
+        steals: true,
+        limit: 1,
+        description: '可以吸取别人的子弹，一局仅能出一次。如果有巨反，则会让吸的人吸自己。若有多个人吸一个人，则均分向下取整'
+      },
+      nuke: {
+        beats: ['up', 'single_shot', 'double_shot', 'normal_defense', 'wave', 'wave_defense', 'counterattack', 'mine', 'fish'],
+        losesTo: ['nuke_defense', 'mega_counterattack'],
+        blocks: [],
+        cost: 5,
+        damage: 50,
+        description: '全局攻击，可以杀死除了核防和巨反的所有东西'
+      },
+      nuke_defense: {
+        beats: ['nuke'],
+        losesTo: ['single_shot', 'double_shot', 'wave'],
+        blocks: [],
+        description: '可以防御核弹，不需要子弹'
+      }
+    };
+    
+    // DOM元素
+    const elements = {
+      mainMenu: document.getElementById('main-menu'),
+      gameScreen: document.getElementById('game-screen'),
+      gameOver: document.getElementById('game-over'),
+      gameOverTitle: document.getElementById('game-over-title'),
+      gameOverMessage: document.getElementById('game-over-message'),
+      rulesModal: document.getElementById('rules-modal'),
+      settingsModal: document.getElementById('settings-modal'),
+      pauseModal: document.getElementById('pause-modal'),
+      multiplayerModal: document.getElementById('multiplayer-modal'),
+      roomCreatedModal: document.getElementById('room-created-modal'),
+      battleResult: document.getElementById('battle-result'),
+      resultMessage: document.getElementById('result-message'),
+      movesContainer: document.getElementById('moves-container'),
+      roundCounter: document.getElementById('round-counter'),
+      bulletCounter: document.getElementById('bullet-counter'),
+      playerHealth: document.getElementById('player-health'),
+      playerHealthText: document.getElementById('player-health-text'),
+      opponentHealth: document.getElementById('opponent-health'),
+      opponentHealthText: document.getElementById('opponent-health-text'),
+      playerBullets: document.getElementById('player-bullets'),
+      opponentBullets: document.getElementById('opponent-bullets'),
+      playerMove: document.getElementById('player-move'),
+      opponentMove: document.getElementById('opponent-move'),
+      playerCounterattack: document.getElementById('player-counterattack'),
+      opponentCounterattack: document.getElementById('opponent-counterattack'),
+      playerMegaCounterattack: document.getElementById('player-mega-counterattack'),
+      opponentMegaCounterattack: document.getElementById('opponent-mega-counterattack'),
+      playerMine: document.getElementById('player-mine'),
+      opponentMine: document.getElementById('opponent-mine'),
+      playerFish: document.getElementById('player-fish'),
+      opponentFish: document.getElementById('opponent-fish'),
+      bubblesContainer: document.getElementById('bubbles-container')
+    };
+    
+    // 按钮事件监听
+    document.getElementById('rules-btn').addEventListener('click', () => {
+      elements.rulesModal.classList.remove('hidden');
+    });
+    
+    document.getElementById('close-rules-btn').addEventListener('click', () => {
+      elements.rulesModal.classList.add('hidden');
+    });
+    
+    document.getElementById('settings-btn').addEventListener('click', () => {
+      elements.settingsModal.classList.remove('hidden');
+    });
+    
+    document.getElementById('close-settings-btn').addEventListener('click', () => {
+      elements.settingsModal.classList.add('hidden');
+    });
+    
+    document.getElementById('single-player-btn').addEventListener('click', () => {
+      startGame('single');
+    });
+    
+    document.getElementById('multi-player-btn').addEventListener('click', () => {
+      elements.multiplayerModal.classList.remove('hidden');
+    });
+    
+    document.getElementById('close-multiplayer-btn').addEventListener('click', () => {
+      elements.multiplayerModal.classList.add('hidden');
+    });
+    
+    document.getElementById('create-room-btn').addEventListener('click', () => {
+      const roomId = Math.floor(100000 + Math.random() * 900000);
+      document.getElementById('created-room-id').textContent = roomId;
+      elements.multiplayerModal.classList.add('hidden');
+      elements.roomCreatedModal.classList.remove('hidden');
+    });
+    
+    document.getElementById('copy-room-id-btn').addEventListener('click', () => {
+      const roomId = document.getElementById('created-room-id').textContent;
+      navigator.clipboard.writeText(roomId).then(() => {
+        showNotification('房间ID已复制到剪贴板');
+      });
+    });
+    
+    document.getElementById('cancel-room-btn').addEventListener('click', () => {
+      elements.roomCreatedModal.classList.add('hidden');
+    });
+    
+    document.getElementById('practice-btn').addEventListener('click', () => {
+      startGame('practice');
+    });
+    
+    document.getElementById('pause-btn').addEventListener('click', () => {
+      elements.pauseModal.classList.remove('hidden');
+      gameState.gameActive = false;
+    });
+    
+    document.getElementById('resume-btn').addEventListener('click', () => {
+      elements.pauseModal.classList.add('hidden');
+      gameState.gameActive = true;
+    });
+    
+    document.getElementById('pause-rules-btn').addEventListener('click', () => {
+      elements.pauseModal.classList.add('hidden');
+      elements.rulesModal.classList.remove('hidden');
+    });
+    
+    document.getElementById('exit-to-menu-btn').addEventListener('click', () => {
+      elements.pauseModal.classList.add('hidden');
+      elements.gameScreen.classList.add('hidden');
+      elements.mainMenu.classList.remove('hidden');
+      resetGame();
+    });
+    
+    document.getElementById('surrender-btn').addEventListener('click', () => {
+      if (confirm('确定要投降吗？')) {
+        endGame('opponent');
+      }
+    });
+    
+    document.getElementById('continue-btn').addEventListener('click', () => {
+      elements.battleResult.classList.add('hidden');
+      elements.movesContainer.classList.remove('hidden');
+      nextRound();
+    });
+    
+    document.getElementById('end-game-btn').addEventListener('click', () => {
+      elements.gameScreen.classList.add('hidden');
+      elements.mainMenu.classList.remove('hidden');
+      resetGame();
+    });
+    
+    document.getElementById('play-again-btn').addEventListener('click', () => {
+      elements.gameOver.classList.add('hidden');
+      resetGame();
+      startGame(gameState.gameMode);
+    });
+    
+    document.getElementById('back-to-menu-btn').addEventListener('click', () => {
+      elements.gameOver.classList.add('hidden');
+      elements.gameScreen.classList.add('hidden');
+      elements.mainMenu.classList.remove('hidden');
+      resetGame();
+    });
+    
+    // 招式按钮事件监听
+    document.querySelectorAll('[data-move]').forEach(button => {
+      button.addEventListener('click', () => {
+        if (!gameState.gameActive) return;
+        
+        const move = button.getAttribute('data-move');
+        
+        // 检查招式是否可用
+        if (!isMoveAvailable(move)) {
+          showNotification('该招式不可用');
+          return;
+        }
+        
+        // 检查子弹是否足够
+        if (moveRelations[move].cost && gameState.playerBullets < moveRelations[move].cost) {
+          showNotification('子弹不足');
+          return;
+        }
+        
+        // 检查是否满足回合限制
+        if (moveRelations[move].roundLimit && gameState.round < moveRelations[move].roundLimit) {
+          showNotification(`该招式需要在第${moveRelations[move].roundLimit}回合后使用`);
+          return;
+        }
+        
+        // 记录玩家选择的招式
+        gameState.currentMove = move;
+        elements.playerMove.innerHTML = moveImages[move];
+        elements.playerMove.classList.remove('hidden');
+        
+        // 消耗子弹
+        if (moveRelations[move].cost) {
+          gameState.playerBullets -= moveRelations[move].cost;
+          updateBulletDisplay();
+        }
+        
+        // 消耗有限制的招式
+        if (moveRelations[move].limit) {
+          if (move === 'counterattack') {
+            gameState.playerMoves.counterattack--;
+          } else if (move === 'mega_counterattack') {
+            gameState.playerMoves.megaCounterattack--;
+          } else if (move === 'mine') {
+            gameState.playerMoves.mine--;
+          } else if (move === 'fish') {
+            gameState.playerMoves.fish--;
+          }
+          updateMoveLimits();
+        }
+        
+        // 禁用所有招式按钮
+        disableAllMoveButtons();
+        
+        // 模拟对手选择招式
+        setTimeout(() => {
+          selectOpponentMove();
+          determineDamage();
+        }, 1000);
+      });
+    });
+    
+    // 初始化游戏
+    function initGame() {
+      createBubbles();
+      updateMoveLimits();
+      updateBulletDisplay();
+      updateRoundDisplay();
+      updateHealthDisplay();
+    }
+    
+    // 开始游戏
+    function startGame(mode) {
+      gameState.gameMode = mode;
+      elements.mainMenu.classList.add('hidden');
+      elements.gameScreen.classList.remove('hidden');
+      gameState.gameActive = true;
+      initGame();
+    }
+    
+    // 重置游戏
+    function resetGame() {
+      gameState.round = 1;
+      gameState.playerBullets = 0;
+      gameState.opponentBullets = 0;
+      gameState.playerHealth = 100;
+      gameState.opponentHealth = 100;
+      gameState.playerMoves = {
+        counterattack: 2,
+        megaCounterattack: 1,
+        mine: 2,
+        fish: 1
+      };
+      gameState.opponentMoves = {
+        counterattack: 2,
+        megaCounterattack: 1,
+        mine: 2,
+        fish: 1
+      };
+      gameState.currentMove = null;
+      gameState.opponentMove = null;
+      gameState.gameActive = false;
+      
+      elements.playerMove.classList.add('hidden');
+      elements.opponentMove.classList.add('hidden');
+      elements.battleResult.classList.add('hidden');
+      elements.gameOver.classList.add('hidden');
+      elements.movesContainer.classList.remove('hidden');
+      
+      updateMoveLimits();
+      updateBulletDisplay();
+      updateRoundDisplay();
+      updateHealthDisplay();
+      enableAllMoveButtons();
+    }
+    
+    // 下一轮
+    function nextRound() {
+      gameState.round++;
+      gameState.currentMove = null;
+      gameState.opponentMove = null;
+      
+      elements.playerMove.classList.add('hidden');
+      elements.opponentMove.classList.add('hidden');
+      
+      updateRoundDisplay();
+      enableAllMoveButtons();
+      
+      // 检查是否满足巨反和地雷的使用条件
+      if (gameState.round >= 4) {
+        document.querySelector('[data-move="mega_counterattack"]').disabled = false;
+        document.querySelector('[data-move="mine"]').disabled = false;
+      }
+    }
+    
+    // 结束游戏
+    function endGame(winner) {
+      gameState.gameActive = false;
+      
+      let title, message;
+      if (winner === 'player') {
+        title = '恭喜胜利！';
+        message = '你成功击败了对手！';
+      } else if (winner === 'opponent') {
+        title = '游戏结束';
+        message = '你被对手击败了！';
+      }
+      
+      elements.gameOverTitle.textContent = title;
+      elements.gameOverMessage.textContent = message;
+      elements.gameOver.classList.remove('hidden');
+      elements.movesContainer.classList.add('hidden');
+      elements.battleResult.classList.add('hidden');
+    }
+    
+    // 选择对手招式
+    function selectOpponentMove() {
+      // 简单的AI逻辑
+      const availableMoves = [];
+      
+      // 获取对手可用的招式
+      for (const move in moveRelations) {
+        if (isOpponentMoveAvailable(move)) {
+          availableMoves.push(move);
+        }
+      }
+      
+      // 让AI更智能一些：如果生命值低，更可能使用强力招式
+      let weightedMoves = [];
+      if (gameState.opponentHealth < 30) {
+        // 生命值低，优先使用高伤害招式
+        availableMoves.forEach(move => {
+          const weight = moveRelations[move].damage ? moveRelations[move].damage / 5 : 1;
+          for (let i = 0; i < weight; i++) {
+            weightedMoves.push(move);
+          }
+        });
+      } else {
+        weightedMoves = availableMoves;
+      }
+      
+      // 随机选择一个招式
+      const randomIndex = Math.floor(Math.random() * weightedMoves.length);
+      gameState.opponentMove = weightedMoves[randomIndex];
+      
+      // 显示对手选择的招式
+      elements.opponentMove.innerHTML = moveImages[gameState.opponentMove];
+      elements.opponentMove.classList.remove('hidden');
+      
+      // 消耗对手的子弹
+      if (moveRelations[gameState.opponentMove].cost) {
+        gameState.opponentBullets -= moveRelations[gameState.opponentMove].cost;
+        updateBulletDisplay();
+      }
+      
+      // 消耗对手有限制的招式
+      if (moveRelations[gameState.opponentMove].limit) {
+        if (gameState.opponentMove === 'counterattack') {
+          gameState.opponentMoves.counterattack--;
+        } else if (gameState.opponentMove === 'mega_counterattack') {
+          gameState.opponentMoves.megaCounterattack--;
+        } else if (gameState.opponentMove === 'mine') {
+          gameState.opponentMoves.mine--;
+        } else if (gameState.opponentMove === 'fish') {
+          gameState.opponentMoves.fish--;
+        }
+        updateMoveLimits();
+      }
+    }
+    
+    // 判定伤害
+    function determineDamage() {
+      const playerMove = gameState.currentMove;
+      const opponentMove = gameState.opponentMove;
+      
+      // 检查是否有反弹效果
+      let playerMoveReflected = false;
+      let opponentMoveReflected = false;
+      
+      // 检查对手的反弹效果
+      if (opponentMove === 'counterattack' && 
+          (playerMove === 'single_shot' || playerMove === 'double_shot')) {
+        playerMoveReflected = true;
+        showNotification('对手使用单反，反弹了你的攻击！');
+      } else if (opponentMove === 'mega_counterattack') {
+        playerMoveReflected = true;
+        showNotification('对手使用巨反，反弹了你的所有攻击！');
+      } else if (opponentMove === 'wave_defense' && playerMove === 'mine') {
+        playerMoveReflected = true;
+        showNotification('对手使用波防，反弹了你的地雷！');
+      }
+      
+      // 检查玩家的反弹效果
+      if (playerMove === 'counterattack' && 
+          (opponentMove === 'single_shot' || opponentMove === 'double_shot')) {
+        opponentMoveReflected = true;
+        showNotification('你使用单反，反弹了对手的攻击！');
+      } else if (playerMove === 'mega_counterattack') {
+        opponentMoveReflected = true;
+        showNotification('你使用巨反，反弹了对手的所有攻击！');
+      } else if (playerMove === 'wave_defense' && opponentMove === 'mine') {
+        opponentMoveReflected = true;
+        showNotification('你使用波防，反弹了对手的地雷！');
+      }
+      
+      // 处理小鱼吸取效果
+      if (playerMove === 'fish') {
+        if (opponentMove === 'mega_counterattack') {
+          // 如果对手使用巨反，玩家吸取自己的子弹
+          const stolenBullets = Math.floor(gameState.playerBullets / 2);
+          gameState.playerBullets -= stolenBullets;
+          showNotification(`小鱼被巨反，你失去了${stolenBullets}颗子弹！`);
+        } else if (!playerMoveReflected) {
+          // 吸取对手的子弹
+          const stolenBullets = Math.floor(gameState.opponentBullets / 2);
+          gameState.playerBullets += stolenBullets;
+          gameState.opponentBullets -= stolenBullets;
+          showNotification(`小鱼吸取了对手${stolenBullets}颗子弹！`);
+        }
+        updateBulletDisplay();
+      }
+      
+      if (opponentMove === 'fish' && !playerMoveReflected) {
+        if (playerMove === 'mega_counterattack') {
+          // 如果玩家使用巨反，对手吸取自己的子弹
+          const stolenBullets = Math.floor(gameState.opponentBullets / 2);
+          gameState.opponentBullets -= stolenBullets;
+          showNotification(`对手的小鱼被巨反，失去了${stolenBullets}颗子弹！`);
+        } else {
+          // 对手吸取玩家的子弹
+          const stolenBullets = Math.floor(gameState.playerBullets / 2);
+          gameState.opponentBullets += stolenBullets;
+          gameState.playerBullets -= stolenBullets;
+          showNotification(`对手的小鱼吸取了你${stolenBullets}颗子弹！`);
+        }
+        updateBulletDisplay();
+      }
+      
+      // 处理上弹效果
+      if (playerMove === 'up' && !playerMoveReflected) {
+        gameState.playerBullets++;
+        showNotification('你上了一颗子弹！');
+      }
+      
+      if (opponentMove === 'up' && !opponentMoveReflected) {
+        gameState.opponentBullets++;
+        showNotification('对手上了一颗子弹！');
+      }
+      
+      updateBulletDisplay();
+      
+      // 计算伤害
+      let playerDamage = 0;
+      let opponentDamage = 0;
+      
+      // 玩家对对手造成的伤害
+      if (!playerMoveReflected && moveRelations[playerMove].beats.includes(opponentMove)) {
+        opponentDamage = moveRelations[playerMove].damage || 0;
+      }
+      
+      // 对手对玩家造成的伤害
+      if (!opponentMoveReflected && moveRelations[opponentMove].beats.includes(playerMove)) {
+        playerDamage = moveRelations[opponentMove].damage || 0;
+      }
+      
+      // 反弹伤害
+      if (playerMoveReflected && moveRelations[playerMove].damage) {
+        playerDamage = moveRelations[playerMove].damage;
+      }
+      
+      if (opponentMoveReflected && moveRelations[opponentMove].damage) {
+        opponentDamage = moveRelations[opponentMove].damage;
+      }
+      
+      // 应用伤害
+      if (playerDamage > 0) {
+        gameState.playerHealth = Math.max(0, gameState.playerHealth - playerDamage);
+        showNotification(`你受到了${playerDamage}点伤害！`);
+        animateDamage('player');
+      }
+      
+      if (opponentDamage > 0) {
+        gameState.opponentHealth = Math.max(0, gameState.opponentHealth - opponentDamage);
+        showNotification(`对手受到了${opponentDamage}点伤害！`);
+        animateDamage('opponent');
+      }
+      
+      // 更新生命值显示
+      setTimeout(() => {
+        updateHealthDisplay();
+        
+        // 检查游戏是否结束
+        if (gameState.playerHealth <= 0) {
+          endGame('opponent');
+          return;
+        }
+        
+        if (gameState.opponentHealth <= 0) {
+          endGame('player');
+          return;
+        }
+        
+        // 显示回合结果
+        let resultMessage = '';
+        if (playerDamage > 0 && opponentDamage > 0) {
+          resultMessage = `双方互相造成伤害！你: ${playerDamage}点, 对手: ${opponentDamage}点`;
+        } else if (playerDamage > 0) {
+          resultMessage = `你受到了${playerDamage}点伤害！`;
+        } else if (opponentDamage > 0) {
+          resultMessage = `你对对手造成了${opponentDamage}点伤害！`;
+        } else {
+          resultMessage = '双方均未造成伤害！';
+        }
+        
+        elements.resultMessage.textContent = resultMessage;
+        elements.battleResult.classList.remove('hidden');
+      }, 800);
+    }
+    
+    // 伤害动画
+    function animateDamage(target) {
+      const avatar = document.getElementById(`${target}-avatar`).parentElement;
+      avatar.classList.add('animate-damage');
+      
+      setTimeout(() => {
+        avatar.classList.remove('animate-damage');
+      }, 500);
+    }
+    
+    // 检查招式是否可用
+    function isMoveAvailable(move) {
+      // 检查是否有使用次数限制
+      if (moveRelations[move].limit) {
+        if (move === 'counterattack' && gameState.playerMoves.counterattack <= 0) {
+          return false;
+        } else if (move === 'mega_counterattack' && gameState.playerMoves.megaCounterattack <= 0) {
+          return false;
+        } else if (move === 'mine' && gameState.playerMoves.mine <= 0) {
+          return false;
+        } else if (move === 'fish' && gameState.playerMoves.fish <= 0) {
+          return false;
+        }
+      }
+      
+      return true;
+    }
+    
+    // 检查对手招式是否可用
+    function isOpponentMoveAvailable(move) {
+      // 检查是否有使用次数限制
+      if (moveRelations[move].limit) {
+        if (move === 'counterattack' && gameState.opponentMoves.counterattack <= 0) {
+          return false;
+        } else if (move === 'mega_counterattack' && gameState.opponentMoves.megaCounterattack <= 0) {
+          return false;
+        } else if (move === 'mine' && gameState.opponentMoves.mine <= 0) {
+          return false;
+        } else if (move === 'fish' && gameState.opponentMoves.fish <= 0) {
+          return false;
+        }
+      }
+      
+      // 检查是否满足回合限制
+      if (moveRelations[move].roundLimit && gameState.round < moveRelations[move].roundLimit) {
+        return false;
+      }
+      
+      // 检查子弹是否足够
+      if (moveRelations[move].cost && gameState.opponentBullets < moveRelations[move].cost) {
+        return false;
+      }
+      
+      return true;
+    }
+    
+    // 更新招式使用次数显示
+    function updateMoveLimits() {
+      elements.playerCounterattack.textContent = `${gameState.playerMoves.counterattack}/2`;
+      elements.opponentCounterattack.textContent = `${gameState.opponentMoves.counterattack}/2`;
+      
+      elements.playerMegaCounterattack.textContent = `${gameState.playerMoves.megaCounterattack}/1`;
+      elements.opponentMegaCounterattack.textContent = `${gameState.opponentMoves.megaCounterattack}/1`;
+      
+      elements.playerMine.textContent = `${gameState.playerMoves.mine}/2`;
+      elements.opponentMine.textContent = `${gameState.opponentMoves.mine}/2`;
+      
+      elements.playerFish.textContent = `${gameState.playerMoves.fish}/1`;
+      elements.opponentFish.textContent = `${gameState.opponentMoves.fish}/1`;
+      
+      // 更新按钮状态
+      document.querySelector('[data-move="counterattack"]').disabled = gameState.playerMoves.counterattack <= 0;
+      document.querySelector('[data-move="mega_counterattack"]').disabled = gameState.playerMoves.megaCounterattack <= 0 || gameState.round < 4;
+      document.querySelector('[data-move="mine"]').disabled = gameState.playerMoves.mine <= 0 || gameState.round < 4;
+      document.querySelector('[data-move="fish"]').disabled = gameState.playerMoves.fish <= 0;
+    }
+    
+    // 更新子弹显示
+    function updateBulletDisplay() {
+      elements.bulletCounter.textContent = gameState.playerBullets;
+      elements.playerBullets.textContent = `子弹: ${gameState.playerBullets}`;
+      elements.opponentBullets.textContent = `子弹: ${gameState.opponentBullets}`;
+    }
+    
+    // 更新生命值显示
+    function updateHealthDisplay() {
+      // 玩家生命值
+      elements.playerHealth.style.width = `${gameState.playerHealth}%`;
+      elements.playerHealthText.textContent = `${gameState.playerHealth}/100`;
+      
+      // 移除之前的状态类
+      elements.playerHealth.classList.remove('low', 'critical');
+      
+      // 添加新的状态类
+      if (gameState.playerHealth < 30) {
+        elements.playerHealth.classList.add('critical');
+      } else if (gameState.playerHealth < 60) {
+        elements.playerHealth.classList.add('low');
+      }
+      
+      // 对手生命值
+      elements.opponentHealth.style.width = `${gameState.opponentHealth}%`;
+      elements.opponentHealthText.textContent = `${gameState.opponentHealth}/100`;
+      
+      // 移除之前的状态类
+      elements.opponentHealth.classList.remove('low', 'critical');
+      
+      // 添加新的状态类
+      if (gameState.opponentHealth < 30) {
+        elements.opponentHealth.classList.add('critical');
+      } else if (gameState.opponentHealth < 60) {
+        elements.opponentHealth.classList.add('low');
+      }
+    }
+    
+    // 更新回合显示
+    function updateRoundDisplay() {
+      elements.roundCounter.textContent = gameState.round;
+    }
+    
+    // 禁用所有招式按钮
+    function disableAllMoveButtons() {
+      document.querySelectorAll('[data-move]').forEach(button => {
+        button.disabled = true;
+      });
+    }
+    
+    // 启用所有招式按钮
+    function enableAllMoveButtons() {
+      document.querySelectorAll('[data-move]').forEach(button => {
+        const move = button.getAttribute('data-move');
+        button.disabled = !isMoveAvailable(move) || (moveRelations[move].roundLimit && gameState.round < moveRelations[move].roundLimit);
+      });
+    }
+    
+    // 显示通知
+    function showNotification(message) {
+      // 创建通知元素
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-underwater-800 text-white px-6 py-3 rounded-xl shadow-lg z-50 animate-float';
+      notification.textContent = message;
+      
+      // 添加到页面
+      document.body.appendChild(notification);
+      
+      // 3秒后移除
+      setTimeout(() => {
+        notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+        setTimeout(() => {
+          document.body.removeChild(notification);
+        }, 500);
+      }, 3000);
+    }
+    
+    // 创建背景气泡
+    function createBubbles() {
+      // 清除现有气泡
+      elements.bubblesContainer.innerHTML = '';
+      
+      // 创建10个气泡
+      for (let i = 0; i < 10; i++) {
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        
+        // 随机大小
+        const size = Math.random() * 20 + 10;
+        bubble.style.width = `${size}px`;
+        bubble.style.height = `${size}px`;
+        
+        // 随机位置
+        const posX = Math.random() * 100;
+        bubble.style.left = `${posX}%`;
+        bubble.style.bottom = '-50px';
+        
+        // 随机动画延迟
+        bubble.style.animationDelay = `${Math.random() * 5}s`;
+        
+        // 随机动画持续时间
+        const duration = Math.random() * 10 + 10;
+        bubble.style.animationDuration = `${duration}s`;
+        
+        elements.bubblesContainer.appendChild(bubble);
+      }
+    }
+    
+    // 初始化页面
+    window.addEventListener('DOMContentLoaded', () => {
+      createBubbles();
+    });
+  </script>
+</body>
+</html>
