@@ -1,1509 +1,2278 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>»®È­Ğ¡Óã°æ - ËÀÍöÖÕ½á°æ</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Font Awesome -->
-  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-  
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#3B82F6',
-            secondary: '#F97316',
-            success: '#10B981',
-            danger: '#EF4444',
-            warning: '#F59E0B',
-            info: '#3B82F6',
-            light: '#F3F4F6',
-            dark: '#1F2937',
-            'underwater-100': '#E0F2FE',
-            'underwater-200': '#BAE6FD',
-            'underwater-300': '#7DD3FC',
-            'underwater-400': '#38BDF8',
-            'underwater-500': '#0EA5E9',
-            'underwater-600': '#0284C7',
-            'underwater-700': '#0369A1',
-            'underwater-800': '#075985',
-            'underwater-900': '#0C4A6E',
-          },
-          fontFamily: {
-            sans: ['Arial', 'sans-serif'],
-          },
-          animation: {
-            'bounce-slow': 'bounce 2s infinite',
-            'float': 'float 3s ease-in-out infinite',
-            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            'bubble': 'bubble 3s ease-in-out infinite',
-            'damage': 'damage 0.5s ease-in-out',
-            'heal': 'heal 0.5s ease-in-out',
-          },
-          keyframes: {
-            float: {
-              '0%, 100%': { transform: 'translateY(0)' },
-              '50%': { transform: 'translateY(-10px)' },
-            },
-            bubble: {
-              '0%': { transform: 'translateY(0) scale(1)', opacity: '0' },
-              '50%': { transform: 'translateY(-20px) scale(1.1)', opacity: '1' },
-              '100%': { transform: 'translateY(-40px) scale(0.9)', opacity: '0' },
-            },
-            damage: {
-              '0%, 100%': { transform: 'translateX(0)' },
-              '25%': { transform: 'translateX(-10px)', backgroundColor: 'rgba(239, 68, 68, 0.3)' },
-              '75%': { transform: 'translateX(10px)', backgroundColor: 'rgba(239, 68, 68, 0.3)' },
-            },
-            heal: {
-              '0%, 100%': { backgroundColor: 'transparent' },
-              '50%': { backgroundColor: 'rgba(16, 185, 129, 0.3)' },
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>åˆ’æ‹³å°é±¼ç‰ˆ</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- ç»Ÿä¸€çš„ Tailwind é…ç½® -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#60a5fa',
+                        accent: '#f472b6',
+                        success: '#4ade80',
+                        danger: '#f87171',
+                        warning: '#facc15',
+                        info: '#0ea5e9',
+                        light: '#f3f4f6',
+                        dark: '#1f2937'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 2s infinite',
+                        'pulse-slow': 'pulse 3s infinite',
+                        'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both',
+                    },
+                    keyframes: {
+                        shake: {
+                            '10%, 90%': { transform: 'translate3d(-1px, 0, 0)' },
+                            '20%, 80%': { transform: 'translate3d(2px, 0, 0)' },
+                            '30%, 50%, 70%': { transform: 'translate3d(-4px, 0, 0)' },
+                            '40%, 60%': { transform: 'translate3d(4px, 0, 0)' }
+                        }
+                    }
+                }
             }
-          }
         }
-      }
-    }
-  </script>
-  
-  <style type="text/tailwindcss">
-    @layer utilities {
-      .text-shadow {
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-      }
-      .text-shadow-lg {
-        text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
-      }
-      .glass {
-        background: rgba(255, 255, 255, 0.25);
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
-        border: 1px solid rgba(255, 255, 255, 0.18);
-      }
-      .glass-dark {
-        background: rgba(31, 41, 55, 0.7);
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-      }
-      .bubble {
-        position: absolute;
-        background-color: rgba(255, 255, 255, 0.7);
-        border-radius: 50%;
-        animation: bubble 3s ease-in-out infinite;
-      }
-      .move-btn {
-        transition: all 0.2s ease;
-      }
-      .move-btn:hover {
-        transform: scale(1.1);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-      }
-      .move-btn:active {
-        transform: scale(0.95);
-      }
-      .move-btn:disabled {
-        opacity: 0.5;
-        transform: none;
-        box-shadow: none;
-        cursor: not-allowed;
-      }
-      .health-bar {
-        height: 10px;
-        background-color: rgba(255, 255, 255, 0.3);
-        border-radius: 5px;
-        overflow: hidden;
-      }
-      .health-fill {
-        height: 100%;
-        background-color: #10B981;
-        transition: width 0.5s ease;
-      }
-      .health-fill.low {
-        background-color: #F59E0B;
-      }
-      .health-fill.critical {
-        background-color: #EF4444;
-      }
-    }
-  </style>
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            }
+            .text-shadow-lg {
+                text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.5);
+            }
+            .bg-glass {
+                background: rgba(255, 255, 255, 0.25);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.18);
+            }
+            .move-card {
+                transition: all 0.3s ease;
+            }
+            .move-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            }
+            .move-card:active {
+                transform: translateY(0);
+            }
+            .move-card.disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+            .move-card.disabled:hover {
+                transform: none;
+                box-shadow: none;
+            }
+            .leaderboard-item {
+                transition: all 0.2s ease;
+            }
+            .leaderboard-item:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+            .leaderboard-item.current-user {
+                background-color: rgba(255, 215, 0, 0.2);
+                border: 1px solid rgba(255, 215, 0, 0.3);
+            }
+        }
+    </style>
 </head>
-<body class="bg-underwater-500 min-h-screen overflow-x-hidden">
-  <!-- ±³¾°ÆøÅİ -->
-  <div id="bubbles-container" class="fixed inset-0 pointer-events-none overflow-hidden"></div>
-  
-  <!-- Ö÷ÈİÆ÷ -->
-  <div id="app" class="relative min-h-screen flex flex-col items-center justify-center p-4">
-    <!-- ±êÌâÇøÓò -->
-    <div class="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10">
-      <h1 class="text-3xl md:text-4xl font-bold text-white text-shadow-lg">»®È­Ğ¡Óã°æ</h1>
-      <div class="flex gap-2">
-        <button id="rules-btn" class="bg-underwater-700 hover:bg-underwater-600 text-white px-4 py-2 rounded-full transition-all duration-300 flex items-center gap-2">
-          <i class="fa fa-book"></i>
-          <span>¹æÔò</span>
-        </button>
-        <button id="settings-btn" class="bg-underwater-700 hover:bg-underwater-600 text-white px-4 py-2 rounded-full transition-all duration-300 flex items-center gap-2">
-          <i class="fa fa-cog"></i>
-          <span>ÉèÖÃ</span>
-        </button>
-      </div>
-    </div>
-    
-    <!-- Ö÷²Ëµ¥ -->
-    <div id="main-menu" class="flex flex-col items-center justify-center gap-8 w-full max-w-4xl">
-      <!-- ÓÎÏ·Logo -->
-      <div class="relative w-64 h-64 mb-8 animate-float">
-        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/9819b258517d48b4b2c11cd70d71750d~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771558&x-signature=RYauULUPUxEZQEjfjEJsO%2FvVjhY%3D" 
-             alt="Ğ¡ÓãLogo" 
-             class="w-full h-full object-contain">
-        <div class="absolute -top-4 -right-4 bg-yellow-400 text-white text-xl font-bold px-4 py-2 rounded-full transform rotate-12 shadow-lg">
-          ËÀÍö°æ
-        </div>
-      </div>
-      
-      <!-- ÓÎÏ·Ä£Ê½Ñ¡Ôñ -->
-      <div class="flex flex-col gap-4 w-full max-w-md">
-        <button id="single-player-btn" class="bg-underwater-600 hover:bg-underwater-500 text-white text-xl font-bold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-4 shadow-lg">
-          <i class="fa fa-user"></i>
-          <span>µ¥ÈËÄ£Ê½</span>
-        </button>
-        <button id="multi-player-btn" class="bg-underwater-600 hover:bg-underwater-500 text-white text-xl font-bold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-4 shadow-lg">
-          <i class="fa fa-users"></i>
-          <span>¶àÈËÁª»ú</span>
-        </button>
-        <button id="practice-btn" class="bg-underwater-600 hover:bg-underwater-500 text-white text-xl font-bold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-4 shadow-lg">
-          <i class="fa fa-lightbulb-o"></i>
-          <span>Á·Ï°Ä£Ê½</span>
-        </button>
-      </div>
-      
-      <!-- ÅÅĞĞ°ñ -->
-      <div class="w-full max-w-md glass rounded-xl p-6 shadow-lg">
-        <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
-          <i class="fa fa-trophy"></i>
-          <span>ÅÅĞĞ°ñ</span>
-        </h2>
-        <div class="space-y-3">
-          <div class="flex justify-between items-center text-white">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center font-bold">1</div>
-              <span>Íæ¼Ò123</span>
-            </div>
-            <span>99Ê¤</span>
-          </div>
-          <div class="flex justify-between items-center text-white">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center font-bold">2</div>
-              <span>Ğ¡Óã°®ºÃÕß</span>
-            </div>
-            <span>87Ê¤</span>
-          </div>
-          <div class="flex justify-between items-center text-white">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 bg-amber-700 rounded-full flex items-center justify-center font-bold">3</div>
-              <span>»®È­´óÊ¦</span>
-            </div>
-            <span>76Ê¤</span>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- ÓÎÏ·½çÃæ -->
-    <div id="game-screen" class="hidden w-full max-w-6xl flex flex-col items-center gap-6">
-      <!-- ÓÎÏ·×´Ì¬ÇøÓò -->
-      <div class="w-full glass rounded-xl p-4 flex justify-between items-center">
-        <div class="flex items-center gap-4">
-          <div class="bg-underwater-700 text-white px-4 py-2 rounded-full">
-            »ØºÏ: <span id="round-counter">1</span>
-          </div>
-          <div class="bg-underwater-700 text-white px-4 py-2 rounded-full">
-            ×Óµ¯: <span id="bullet-counter">0</span>
-          </div>
-        </div>
-        <div class="flex items-center gap-4">
-          <button id="surrender-btn" class="bg-danger hover:bg-red-600 text-white px-4 py-2 rounded-full transition-all duration-300">
-            Í¶½µ
-          </button>
-          <button id="pause-btn" class="bg-underwater-700 hover:bg-underwater-600 text-white px-4 py-2 rounded-full transition-all duration-300">
-            ÔİÍ£
-          </button>
-        </div>
-      </div>
-      
-      <!-- Íæ¼ÒÇøÓò -->
-      <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- ¶ÔÊÖÇøÓò -->
-        <div class="glass rounded-xl p-6 flex flex-col items-center">
-          <div class="text-xl font-bold text-white mb-2">¶ÔÊÖ</div>
-          <div class="w-full mb-4">
-            <div class="health-bar w-full">
-              <div id="opponent-health" class="health-fill" style="width: 100%"></div>
-            </div>
-            <div class="text-right text-white text-sm mt-1">
-              <span id="opponent-health-text">100/100</span>
-            </div>
-          </div>
-          <div class="relative w-48 h-48 mb-4">
-            <div class="absolute inset-0 flex items-center justify-center">
-              <div id="opponent-avatar" class="w-32 h-32 rounded-full bg-underwater-300 flex items-center justify-center">
-                <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/00d8746f46534e569e06c8896415abe3~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771573&x-signature=ni%2B8RwbSCUFPQ8OF5WGepIVWXYA%3D" 
-                     alt="¶ÔÊÖ" 
-                     class="w-24 h-24 object-contain">
-              </div>
-            </div>
-            <div id="opponent-bullets" class="absolute -top-4 -right-4 bg-underwater-700 text-white px-3 py-1 rounded-full text-sm">
-              ×Óµ¯: 0
-            </div>
-          </div>
-          <div id="opponent-move" class="w-24 h-24 mb-4 hidden">
-            <!-- ¶ÔÊÖÑ¡ÔñµÄÕĞÊ½½«ÔÚÕâÀïÏÔÊ¾ -->
-          </div>
-          <div class="flex gap-2 flex-wrap justify-center">
-            <div class="bg-underwater-700 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
-              <i class="fa fa-refresh"></i>
-              <span id="opponent-counterattack">0/2</span>
-            </div>
-            <div class="bg-underwater-700 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
-              <i class="fa fa-bolt"></i>
-              <span id="opponent-mega-counterattack">0/1</span>
-            </div>
-            <div class="bg-underwater-700 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
-              <i class="fa fa-bomb"></i>
-              <span id="opponent-mine">0/2</span>
-            </div>
-            <div class="bg-underwater-700 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
-              <i class="fa fa-fish"></i>
-              <span id="opponent-fish">0/1</span>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Íæ¼ÒÇøÓò -->
-        <div class="glass rounded-xl p-6 flex flex-col items-center">
-          <div class="text-xl font-bold text-white mb-2">Íæ¼Ò</div>
-          <div class="w-full mb-4">
-            <div class="health-bar w-full">
-              <div id="player-health" class="health-fill" style="width: 100%"></div>
-            </div>
-            <div class="text-right text-white text-sm mt-1">
-              <span id="player-health-text">100/100</span>
-            </div>
-          </div>
-          <div class="relative w-48 h-48 mb-4">
-            <div class="absolute inset-0 flex items-center justify-center">
-              <div id="player-avatar" class="w-32 h-32 rounded-full bg-underwater-300 flex items-center justify-center">
-                <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/9819b258517d48b4b2c11cd70d71750d~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771558&x-signature=RYauULUPUxEZQEjfjEJsO%2FvVjhY%3D" 
-                     alt="Íæ¼Ò" 
-                     class="w-24 h-24 object-contain">
-              </div>
-            </div>
-            <div id="player-bullets" class="absolute -top-4 -right-4 bg-underwater-700 text-white px-3 py-1 rounded-full text-sm">
-              ×Óµ¯: 0
-            </div>
-          </div>
-          <div id="player-move" class="w-24 h-24 mb-4 hidden">
-            <!-- Íæ¼ÒÑ¡ÔñµÄÕĞÊ½½«ÔÚÕâÀïÏÔÊ¾ -->
-          </div>
-          <div class="flex gap-2 flex-wrap justify-center">
-            <div class="bg-underwater-700 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
-              <i class="fa fa-refresh"></i>
-              <span id="player-counterattack">2/2</span>
-            </div>
-            <div class="bg-underwater-700 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
-              <i class="fa fa-bolt"></i>
-              <span id="player-mega-counterattack">1/1</span>
-            </div>
-            <div class="bg-underwater-700 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
-              <i class="fa fa-bomb"></i>
-              <span id="player-mine">2/2</span>
-            </div>
-            <div class="bg-underwater-700 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
-              <i class="fa fa-fish"></i>
-              <span id="player-fish">1/1</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Õ½¶·½á¹ûÇøÓò -->
-      <div id="battle-result" class="hidden w-full glass rounded-xl p-6 text-center">
-        <h3 class="text-2xl font-bold text-white mb-4">Õ½¶·½á¹û</h3>
-        <p id="result-message" class="text-xl text-white mb-6"></p>
-        <div class="flex justify-center gap-4">
-          <button id="continue-btn" class="bg-underwater-600 hover:bg-underwater-500 text-white px-6 py-3 rounded-xl transition-all duration-300">
-            ¼ÌĞøÓÎÏ·
-          </button>
-          <button id="end-game-btn" class="bg-danger hover:bg-red-600 text-white px-6 py-3 rounded-xl transition-all duration-300">
-            ½áÊøÓÎÏ·
-          </button>
-        </div>
-      </div>
-      
-      <!-- ÓÎÏ·½áÊøÇøÓò -->
-      <div id="game-over" class="hidden w-full glass rounded-xl p-6 text-center">
-        <h3 class="text-3xl font-bold text-white mb-4" id="game-over-title">ÓÎÏ·½áÊø</h3>
-        <p id="game-over-message" class="text-xl text-white mb-6"></p>
-        <div class="flex justify-center gap-4">
-          <button id="play-again-btn" class="bg-underwater-600 hover:bg-underwater-500 text-white px-6 py-3 rounded-xl transition-all duration-300">
-            ÔÙÀ´Ò»¾Ö
-          </button>
-          <button id="back-to-menu-btn" class="bg-danger hover:bg-red-600 text-white px-6 py-3 rounded-xl transition-all duration-300">
-            ·µ»ØÖ÷²Ëµ¥
-          </button>
-        </div>
-      </div>
-      
-      <!-- ÕĞÊ½Ñ¡ÔñÇøÓò -->
-      <div id="moves-container" class="w-full glass rounded-xl p-6">
-        <h3 class="text-xl font-bold text-white mb-4">Ñ¡ÔñÕĞÊ½</h3>
-        
-        <!-- µÚÒ»ĞĞÕĞÊ½ -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-          <button data-move="up" class="move-btn bg-underwater-700 hover:bg-underwater-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2">
-            <div class="w-12 h-12 flex items-center justify-center">
-              <i class="fa fa-arrow-up text-2xl"></i>
-            </div>
-            <span>ÉÏµ¯</span>
-            <span class="text-xs text-underwater-200">×Óµ¯+1</span>
-          </button>
-          
-          <button data-move="single_shot" class="move-btn bg-underwater-700 hover:bg-underwater-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2">
-            <div class="w-12 h-12 flex items-center justify-center">
-              <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/24ba51f2056848bf8d98e2a4d7af67c9~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=YxwPtiT%2FKwurRfBuDbLBVlkXhJU%3D" 
-                   alt="µ¥Ç¹" 
-                   class="w-10 h-10 object-contain">
-            </div>
-            <span>µ¥Ç¹</span>
-            <span class="text-xs text-underwater-200">ÏûºÄ1×Óµ¯</span>
-          </button>
-          
-          <button data-move="double_shot" class="move-btn bg-underwater-700 hover:bg-underwater-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2">
-            <div class="w-12 h-12 flex items-center justify-center">
-              <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/953ba657f98c4af590a3a9ffb068ee33~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771573&x-signature=umpX4nPd6707EJBaXelVevR5dp0%3D" 
-                   alt="Ë«Ç¹" 
-                   class="w-10 h-10 object-contain">
-            </div>
-            <span>Ë«Ç¹</span>
-            <span class="text-xs text-underwater-200">ÏûºÄ2×Óµ¯</span>
-          </button>
-          
-          <button data-move="normal_defense" class="move-btn bg-underwater-700 hover:bg-underwater-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2">
-            <div class="w-12 h-12 flex items-center justify-center">
-              <img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/914cfb6422814f2ca3b488d472d438de~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=xHiYAL2Zw68YX31AO%2Bfe796qPwQ%3D" 
-                   alt="ÆÕ·À" 
-                   class="w-10 h-10 object-contain">
-            </div>
-            <span>ÆÕ·À</span>
-            <span class="text-xs text-underwater-200">ÎŞĞè×Óµ¯</span>
-          </button>
-        </div>
-        
-        <!-- µÚ¶şĞĞÕĞÊ½ -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-          <button data-move="wave" class="move-btn bg-underwater-700 hover:bg-underwater-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2">
-            <div class="w-12 h-12 flex items-center justify-center">
-              <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/be36076b34ca47e785e64788cdef0800~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=v4H4PI306eJpF8N1UXZTAKpnamc%3D" 
-                   alt="²¨" 
-                   class="w-10 h-10 object-contain">
-            </div>
-            <span>²¨</span>
-            <span class="text-xs text-underwater-200">ÏûºÄ3×Óµ¯</span>
-          </button>
-          
-          <button data-move="wave_defense" class="move-btn bg-underwater-700 hover:bg-underwater-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2">
-            <div class="w-12 h-12 flex items-center justify-center">
-              <div class="relative">
-                <img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/914cfb6422814f2ca3b488d472d438de~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=xHiYAL2Zw68YX31AO%2Bfe796qPwQ%3D" 
-                     alt="²¨·À" 
-                     class="w-10 h-10 object-contain">
-                <div class="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
-                  <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/be36076b34ca47e785e64788cdef0800~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=v4H4PI306eJpF8N1UXZTAKpnamc%3D" 
-                       alt="²¨" 
-                       class="w-2 h-2 object-contain">
+<body class="bg-gradient-to-br from-blue-500 to-purple-600 min-h-screen font-sans text-white">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- æ¸¸æˆæ ‡é¢˜ -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-shadow-lg mb-2">åˆ’æ‹³å°é±¼ç‰ˆ</h1>
+            <p class="text-xl text-blue-100">ç­–ç•¥å¯¹æˆ˜ï¼Œè°æ˜¯æœ€ç»ˆèµ¢å®¶ï¼Ÿ</p>
+        </header>
+
+        <!-- ä¸»å®¹å™¨ -->
+        <div id="app" class="bg-glass rounded-2xl shadow-2xl p-6 md:p-8">
+            <!-- ç™»å½•ç•Œé¢ -->
+            <div id="login-screen" class="screen active">
+                <div class="max-w-md mx-auto">
+                    <h2 class="text-3xl font-bold text-center mb-6">ç™»å½•</h2>
+                    <form id="login-form" class="space-y-4">
+                        <div>
+                            <label for="login-username" class="block text-sm font-medium mb-1">ç”¨æˆ·å</label>
+                            <input type="text" id="login-username" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-300 text-white placeholder-blue-100" placeholder="è¯·è¾“å…¥ç”¨æˆ·å">
+                        </div>
+                        <div>
+                            <label for="login-password" class="block text-sm font-medium mb-1">å¯†ç </label>
+                            <input type="password" id="login-password" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-300 text-white placeholder-blue-100" placeholder="è¯·è¾“å…¥å¯†ç ">
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <button type="button" id="show-register" class="text-sm text-blue-200 hover:text-blue-100">æ²¡æœ‰è´¦å·ï¼Ÿæ³¨å†Œ</button>
+                            <button type="button" id="show-rules" class="text-sm text-blue-200 hover:text-blue-100">æ¸¸æˆè§„åˆ™</button>
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-300">ç™»å½•</button>
+                    </form>
                 </div>
-              </div>
             </div>
-            <span>²¨·À</span>
-            <span class="text-xs text-underwater-200">ÎŞĞè×Óµ¯</span>
-          </button>
-          
-          <button data-move="counterattack" class="move-btn bg-underwater-700 hover:bg-underwater-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2">
-            <div class="w-12 h-12 flex items-center justify-center">
-              <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/ff17e89747674845af0efc34d4d882b7~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771573&x-signature=oawjE4RNiRA2jweYGRnppgjNtCI%3D" 
-                   alt="µ¥·´" 
-                   class="w-10 h-10 object-contain">
+
+            <!-- æ³¨å†Œç•Œé¢ -->
+            <div id="register-screen" class="screen hidden">
+                <div class="max-w-md mx-auto">
+                    <h2 class="text-3xl font-bold text-center mb-6">æ³¨å†Œ</h2>
+                    <form id="register-form" class="space-y-4">
+                        <div>
+                            <label for="register-username" class="block text-sm font-medium mb-1">ç”¨æˆ·å</label>
+                            <input type="text" id="register-username" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-300 text-white placeholder-blue-100" placeholder="è¯·è¾“å…¥ç”¨æˆ·å">
+                        </div>
+                        <div>
+                            <label for="register-password" class="block text-sm font-medium mb-1">å¯†ç </label>
+                            <input type="password" id="register-password" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-300 text-white placeholder-blue-100" placeholder="è¯·è¾“å…¥å¯†ç ">
+                        </div>
+                        <div>
+                            <label for="register-confirm-password" class="block text-sm font-medium mb-1">ç¡®è®¤å¯†ç </label>
+                            <input type="password" id="register-confirm-password" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-300 text-white placeholder-blue-100" placeholder="è¯·å†æ¬¡è¾“å…¥å¯†ç ">
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <button type="button" id="show-login" class="text-sm text-blue-200 hover:text-blue-100">å·²æœ‰è´¦å·ï¼Ÿç™»å½•</button>
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-300">æ³¨å†Œ</button>
+                    </form>
+                </div>
             </div>
-            <span>µ¥·´</span>
-            <span class="text-xs text-underwater-200">2´Î/¾Ö</span>
-          </button>
-          
-          <button data-move="mega_counterattack" class="move-btn bg-underwater-700 hover:bg-underwater-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2" disabled>
-            <div class="w-12 h-12 flex items-center justify-center">
-              <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/ff17e89747674845af0efc34d4d882b7~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771573&x-signature=oawjE4RNiRA2jweYGRnppgjNtCI%3D" 
-                   alt="¾Ş·´" 
-                   class="w-10 h-10 object-contain">
+
+            <!-- æ¸¸æˆè§„åˆ™ç•Œé¢ -->
+            <div id="rules-screen" class="screen hidden">
+                <div class="max-w-2xl mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-3xl font-bold">æ¸¸æˆè§„åˆ™</h2>
+                        <button type="button" id="close-rules" class="text-2xl hover:text-blue-200">&times;</button>
+                    </div>
+                    <div class="bg-white/10 rounded-xl p-6 max-h-[70vh] overflow-y-auto">
+                        <h3 class="text-xl font-bold mb-4">åŸºæœ¬è§„åˆ™</h3>
+                        <p class="mb-4">åˆ’æ‹³å°é±¼ç‰ˆæ˜¯ä¸€æ¬¾åŸºäºä¼ ç»Ÿåˆ’æ‹³æ¸¸æˆçš„å¯¹æˆ˜æ¸¸æˆã€‚ç©å®¶é€šè¿‡é€‰æ‹©ä¸åŒçš„æ‹›å¼è¿›è¡Œå¯¹æˆ˜ï¼Œç›®æ ‡æ˜¯å°†å¯¹æ–¹å¹²æ‰ã€‚</p>
+                        
+                        <h3 class="text-xl font-bold mb-4">æ‹›å¼è¯´æ˜</h3>
+                        <div class="space-y-3">
+                            <div class="p-3 bg-white/10 rounded-lg">
+                                <span class="font-bold text-yellow-300">ä¸Šå¼¹ï¼š</span>
+                                <span>å­å¼¹æ•°é‡+1</span>
+                            </div>
+                            <div class="p-3 bg-white/10 rounded-lg">
+                                <span class="font-bold text-yellow-300">å•æªï¼š</span>
+                                <span>éœ€è¦ä¸€é¢—å­å¼¹æ‰“å‡ºå•æªï¼Œå¯ä»¥æ€æ­»ä¸Šå¼¹ã€æ³¢é˜²ã€æ ¸é˜²</span>
+                            </div>
+                            <div class="p-3 bg-white/10 rounded-lg">
+                                <span class="font-bold text-yellow-300">åŒæªï¼š</span>
+                                <span>éœ€è¦ä¸¤é¢—å­å¼¹æ‰“å‡ºåŒæªï¼Œå¯ä»¥æ€æ­»ä¸Šå¼¹ã€æ³¢é˜²å’Œå•æªã€æ ¸é˜²ã€åœ°é›·</span>
+                            </div>
+                            <div class="p-3 bg-white/10 rounded-lg">
+                                <span class="font-bold text-yellow-300">æ™®é˜²ï¼š</span>
+                                <span>å¯ä»¥é˜²å¾¡å•æªã€åŒæªï¼Œä¸éœ€è¦å­å¼¹</span>
+                            </div>
+                            <div class="p-3 bg-white/10 rounded-lg">
+                                <span class="font-bold text-yellow-300">æ³¢ï¼š</span>
+                                <span>éœ€è¦ä¸‰é¢—å­å¼¹æ‰“å‡ºæ³¢ï¼Œå¯ä»¥æ€æ­»ä¸Šå¼¹ã€å•æªã€æ™®é˜²ã€å•åã€æ ¸é˜²ã€åœ°é›·ã€åŒæª</span>
+                            </div>
+                            <div class="p-3 bg-white/10 rounded-lg">
+                                <span class="font-bold text-yellow-300">æ³¢é˜²ï¼š</span>
+                                <span>å¯ä»¥é˜²å¾¡æ³¢ã€å°é±¼ï¼Œä¸æ³¢äº’ç›¸æŠµæ¶ˆï¼Œå¯ä»¥åå¼¹åœ°é›·ï¼Œä¸éœ€è¦å­å¼¹</span>
+                            </div>
+                            <div class="p-3 bg-white/10 rounded-lg">
+                                <span class="font-bold text-yellow-300">å•åï¼š</span>
+                                <span>ä¸€å±€æœ‰ä¸¤æ¬¡ï¼Œå¯ä»¥åå¼¹å…¨å±€å•æªã€åŒæªï¼Œä¸å¯ä»¥è¿å‡º</span>
+                            </div>
+                            <div class="p-3 bg-white/10 rounded-lg">
+                                <span class="font-bold text-yellow-300">å·¨åï¼š</span>
+                                <span>ä¸€å±€æœ‰ä¸€æ¬¡ï¼Œå¯ä»¥åå¼¹å…¨å±€ï¼ˆåŒ…æ‹¬æ ¸å¼¹ï¼‰æ‰€æœ‰ä¸œè¥¿ï¼ˆä¸å½±å“ä¸Šå¼¹ï¼‰ï¼Œå¿…é¡»åœ¨ç¬¬4å›åˆåŠä»¥åå‡º</span>
+                            </div>
+                            <div class="p-3 bg-white/10 rounded-lg">
+                                <span class="font-bold text-yellow-300">åœ°é›·ï¼š</span>
+                                <span>ä¸€å±€æœ‰ä¸¤æ¬¡ï¼Œå¿…é¡»åœ¨ç¬¬4å›åˆåŠä»¥åå‡ºï¼Œå¯ä»¥æ€æ­»ä¸Šå¼¹ã€å•æªï¼Œä¼šè¢«æ³¢é˜²åå¼¹</span>
+                            </div>
+                            <div class="p-3 bg-white/10 rounded-lg">
+                                <span class="font-bold text-yellow-300">å°é±¼ï¼š</span>
+                                <span>å¯ä»¥å¸å–åˆ«äººçš„å­å¼¹ï¼Œä¸€å±€ä»…èƒ½å‡ºä¸€æ¬¡ã€‚å¦‚æœæœ‰å·¨åï¼Œåˆ™ä¼šè®©å¸çš„äººå­å¼¹æ¸…ç©ºï¼Œè¢«å¸ç€è·å¾—å¸çš„äººå…ˆå‰çš„æ‰€æœ‰å­å¼¹ã€‚è‹¥æœ‰å¤šä¸ªäººå¸ä¸€ä¸ªäººï¼Œåˆ™å‡åˆ†å‘ä¸Šå–æ•´</span>
+                            </div>
+                            <div class="p-3 bg-white/10 rounded-lg">
+                                <span class="font-bold text-yellow-300">æ ¸å¼¹ï¼š</span>
+                                <span>å…¨å±€æ”»å‡»ï¼Œå¯ä»¥æ€æ­»é™¤äº†æ ¸é˜²å’Œå·¨åçš„æ‰€æœ‰ä¸œè¥¿</span>
+                            </div>
+                            <div class="p-3 bg-white/10 rounded-lg">
+                                <span class="font-bold text-yellow-300">æ ¸é˜²ï¼š</span>
+                                <span>å¯ä»¥é˜²å¾¡æ ¸å¼¹å’Œåœ°é›·ï¼Œä¸éœ€è¦å­å¼¹</span>
+                            </div>
+                        </div>
+                        
+                        <h3 class="text-xl font-bold mt-6 mb-4">æ¸¸æˆæ¨¡å¼</h3>
+                        <div class="space-y-2">
+                            <p><span class="font-bold text-yellow-300">å•äººåŒ¹é…ï¼š</span>åŒ¹é…çœŸäººç©å®¶å¯¹å†³ï¼ˆç§¯åˆ†å·®è·æœ€å°ï¼‰</p>
+                            <p><span class="font-bold text-yellow-300">å¤šäººè”æœºï¼š</span>åˆ›å»ºæˆ¿é—´/å¿«é€ŸåŠ å…¥/åŠ å…¥æˆ¿é—´ï¼ˆè¾“å…¥æˆ¿é—´å·ï¼‰</p>
+                            <p><span class="font-bold text-yellow-300">ç»ƒä¹ æ¨¡å¼ï¼š</span>åˆ†ä¸ºç®€å•ï¼Œæ™®é€šï¼Œå›°éš¾æ¨¡å¼ï¼Œä¸AIå¯¹æˆ˜</p>
+                        </div>
+                        
+                        <h3 class="text-xl font-bold mt-6 mb-4">ç‰¹æ®Šæœºåˆ¶</h3>
+                        <div class="space-y-3">
+                            <div class="p-3 bg-white/10 rounded-lg">
+                                <span class="font-bold text-yellow-300">æ‹›å¼é™åˆ¶ï¼š</span>
+                                <span>å•åã€å·¨åã€åœ°é›·ã€å°é±¼å‡æœ‰ä½¿ç”¨æ¬¡æ•°é™åˆ¶</span>
+                            </div>
+                            <div class="p-3 bg-white/10 rounded-lg">
+                                <span class="font-bold text-yellow-300">å›åˆé™åˆ¶ï¼š</span>
+                                <span>å·¨åã€åœ°é›·ä»…èƒ½åœ¨ç¬¬4å›åˆåŠä¹‹åä½¿ç”¨</span>
+                            </div>
+                            <div class="p-3 bg-white/10 rounded-lg">
+                                <span class="font-bold text-yellow-300">è¿ç»­é™åˆ¶ï¼š</span>
+                                <span>å•åã€åœ°é›·ä¸å¯è¿ç»­ä½¿ç”¨</span>
+                            </div>
+                            <div class="p-3 bg-white/10 rounded-lg">
+                                <span class="font-bold text-yellow-300">æŠµæ¶ˆè§„åˆ™ï¼š</span>
+                                <span>å°é±¼ä¸å•åã€å•æªã€åŒæªã€åœ°é›·äº’ç›¸æŠµæ¶ˆï¼›æ ¸é˜²ä¸åœ°é›·äº’ç›¸æŠµæ¶ˆ</span>
+                            </div>
+                            <div class="p-3 bg-white/10 rounded-lg">
+                                <span class="font-bold text-yellow-300">åå¼¹è§„åˆ™ï¼š</span>
+                                <span>æ³¢é˜²å¯åå¼¹åœ°é›·ï¼›å·¨åå¯åå¼¹æ‰€æœ‰æ‹›å¼ï¼ˆé™¤ä¸Šå¼¹ï¼‰ï¼›å•åä»…åå¼¹å•æªã€åŒæª</span>
+                            </div>
+                        </div>
+                        
+                        <h3 class="text-xl font-bold mt-6 mb-4">ç§¯åˆ†è§„åˆ™</h3>
+                        <div class="space-y-2">
+                            <p>æ¯äººåˆå§‹ä¸º0ï¼Œä¸ä¼šå˜æˆè´Ÿæ•°</p>
+                            <p>å•äººè·èƒœ+2ï¼Œå¤±è´¥-1</p>
+                            <p>å¤šäººè·èƒœ+äººæ•°*2ï¼Œå¤±è´¥-1</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <span>¾Ş·´</span>
-            <span class="text-xs text-underwater-200">1´Î/¾Ö (4»ØºÏºó)</span>
-          </button>
+
+            <!-- ä¸»èœå•ç•Œé¢ -->
+            <div id="menu-screen" class="screen hidden">
+                <div class="text-center mb-6">
+                    <h2 class="text-3xl font-bold mb-2">æ¬¢è¿ï¼Œ<span id="current-user" class="text-yellow-300">ç©å®¶</span>ï¼</h2>
+                    <p class="text-lg">å½“å‰ç§¯åˆ†ï¼š<span id="current-score" class="font-bold">0</span></p>
+                </div>
+                
+                <!-- ç§¯åˆ†æ’è¡Œæ¦œ -->
+                <div class="mb-8 bg-white/10 rounded-xl p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold">ç§¯åˆ†æ’è¡Œæ¦œ</h3>
+                        <button id="refresh-leaderboard" class="text-sm bg-blue-500/50 hover:bg-blue-500/70 px-3 py-1 rounded-lg transition-colors">
+                            <i class="fa fa-refresh mr-1"></i> åˆ·æ–°
+                        </button>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-white/20">
+                                    <th class="text-left py-2 px-1">æ’å</th>
+                                    <th class="text-left py-2 px-1">ç”¨æˆ·å</th>
+                                    <th class="text-right py-2 px-1">ç§¯åˆ†</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboard-body">
+                                <!-- æ’è¡Œæ¦œå†…å®¹å°†é€šè¿‡JSåŠ¨æ€ç”Ÿæˆ -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="mt-4 text-sm text-center text-blue-100">
+                        <p>æ•°æ®æ¯5åˆ†é’Ÿæ›´æ–°ä¸€æ¬¡</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <button id="practice-mode" class="game-mode-btn bg-gradient-to-br from-green-500 to-green-700 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                        <i class="fa fa-robot text-4xl mb-4"></i>
+                        <h3 class="text-xl font-bold mb-2">ç»ƒä¹ æ¨¡å¼</h3>
+                        <p class="text-sm text-green-100">ä¸AIå¯¹æˆ˜ï¼Œæå‡æŠ€å·§</p>
+                    </button>
+                    
+                    <button id="single-player" class="game-mode-btn bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                        <i class="fa fa-user text-4xl mb-4"></i>
+                        <h3 class="text-xl font-bold mb-2">å•äººåŒ¹é…</h3>
+                        <p class="text-sm text-blue-100">åŒ¹é…çœŸå®ç©å®¶å¯¹å†³</p>
+                    </button>
+                    
+                    <button id="multi-player" class="game-mode-btn bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                        <i class="fa fa-users text-4xl mb-4"></i>
+                        <h3 class="text-xl font-bold mb-2">å¤šäººè”æœº</h3>
+                        <p class="text-sm text-purple-100">åˆ›å»ºæˆ–åŠ å…¥æˆ¿é—´</p>
+                    </button>
+                </div>
+                
+                <div class="mt-8 flex justify-center space-x-4">
+                    <button id="show-rules-from-menu" class="bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-300">
+                        æ¸¸æˆè§„åˆ™
+                    </button>
+                    <button id="logout" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-300">
+                        é€€å‡ºç™»å½•
+                    </button>
+                </div>
+            </div>
+
+            <!-- ç»ƒä¹ æ¨¡å¼éš¾åº¦é€‰æ‹© -->
+            <div id="difficulty-screen" class="screen hidden">
+                <div class="max-w-md mx-auto text-center">
+                    <h2 class="text-3xl font-bold mb-6">é€‰æ‹©éš¾åº¦</h2>
+                    
+                    <div class="space-y-4">
+                        <button data-difficulty="easy" class="difficulty-btn w-full bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                            <h3 class="text-xl font-bold mb-2">ç®€å•</h3>
+                            <p class="text-sm text-green-100">é€‚åˆæ–°æ‰‹ï¼ŒAIéšæœºå‡ºç‰Œ</p>
+                        </button>
+                        
+                        <button data-difficulty="normal" class="difficulty-btn w-full bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                            <h3 class="text-xl font-bold mb-2">æ™®é€š</h3>
+                            <p class="text-sm text-yellow-100">æœ‰ä¸€å®šç­–ç•¥ï¼Œé€‚åˆç†Ÿç»ƒç©å®¶</p>
+                        </button>
+                        
+                        <button data-difficulty="hard" class="difficulty-btn w-full bg-gradient-to-r from-red-500 to-red-600 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                            <h3 class="text-xl font-bold mb-2">å›°éš¾</h3>
+                            <p class="text-sm text-red-100">é«˜çº§ç­–ç•¥ï¼Œæå…·æŒ‘æˆ˜æ€§</p>
+                        </button>
+                    </div>
+                    
+                    <button id="back-to-menu-from-difficulty" class="mt-8 bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-300">
+                        è¿”å›ä¸»èœå•
+                    </button>
+                </div>
+            </div>
+
+            <!-- å¤šäººè”æœºç•Œé¢ -->
+            <div id="multiplayer-screen" class="screen hidden">
+                <div class="max-w-md mx-auto">
+                    <h2 class="text-3xl font-bold text-center mb-6">å¤šäººè”æœº</h2>
+                    
+                    <div class="space-y-6">
+                        <button id="create-room" class="w-full bg-gradient-to-r from-purple-500 to-purple-700 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                            <h3 class="text-xl font-bold mb-2">åˆ›å»ºæˆ¿é—´</h3>
+                            <p class="text-sm text-purple-100">åˆ›å»ºæ–°æˆ¿é—´ç­‰å¾…å…¶ä»–ç©å®¶åŠ å…¥</p>
+                        </button>
+                        
+                        <button id="quick-join" class="w-full bg-gradient-to-r from-blue-500 to-blue-700 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                            <h3 class="text-xl font-bold mb-2">å¿«é€ŸåŠ å…¥</h3>
+                            <p class="text-sm text-blue-100">è‡ªåŠ¨åŠ å…¥æœ‰ç©ºä½çš„æˆ¿é—´</p>
+                        </button>
+                        
+                        <div class="bg-white/10 rounded-xl p-6">
+                            <h3 class="text-xl font-bold mb-4">è¾“å…¥æˆ¿é—´å·</h3>
+                            <div class="flex space-x-2">
+                                <input type="text" id="room-id" class="flex-1 px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-300 text-white placeholder-blue-100" placeholder="æˆ¿é—´å·">
+                                <button id="join-room" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-300 whitespace-nowrap">
+                                    åŠ å…¥
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button id="back-to-menu-from-multiplayer" class="mt-8 bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-300 w-full">
+                        è¿”å›ä¸»èœå•
+                    </button>
+                </div>
+            </div>
+
+            <!-- å±€åŸŸç½‘å¯¹æˆ˜ç•Œé¢ -->
+            <div id="lan-battle-screen" class="screen hidden">
+                <div class="max-w-md mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-3xl font-bold">å±€åŸŸç½‘å¯¹æˆ˜</h2>
+                        <button id="back-to-menu-from-lan" class="text-2xl hover:text-blue-200">&times;</button>
+                    </div>
+                    
+                    <div class="bg-white/10 rounded-xl p-6 mb-6">
+                        <h3 class="text-xl font-bold mb-4">åˆ›å»ºæ¸¸æˆ</h3>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-white/5 rounded-lg">
+                                <p class="text-sm opacity-80 mb-1">ä½ çš„IPåœ°å€</p>
+                                <p class="font-mono font-bold" id="local-ip">192.168.1.100</p>
+                            </div>
+                            <div class="p-4 bg-white/5 rounded-lg">
+                                <p class="text-sm opacity-80 mb-1">ç«¯å£</p>
+                                <p class="font-mono font-bold">8080</p>
+                            </div>
+                            <button id="create-lan-game" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-300">
+                                åˆ›å»ºæ¸¸æˆ
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white/10 rounded-xl p-6">
+                        <h3 class="text-xl font-bold mb-4">åŠ å…¥æ¸¸æˆ</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="host-ip" class="block text-sm font-medium mb-1">ä¸»æœºIPåœ°å€</label>
+                                <input type="text" id="host-ip" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-300 text-white placeholder-blue-100" placeholder="è¯·è¾“å…¥ä¸»æœºIPåœ°å€">
+                            </div>
+                            <div>
+                                <label for="host-port" class="block text-sm font-medium mb-1">ç«¯å£</label>
+                                <input type="text" id="host-port" class="w-full px-4 py-2 rounded-lg bg-white/20 border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-300 text-white placeholder-blue-100" placeholder="è¯·è¾“å…¥ç«¯å£å·" value="8080">
+                            </div>
+                            <button id="join-lan-game" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-300">
+                                åŠ å…¥æ¸¸æˆ
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 text-center text-sm text-blue-100">
+                        <p>è¯·ç¡®ä¿æ‰€æœ‰ç©å®¶åœ¨åŒä¸€å±€åŸŸç½‘å†…</p>
+                        <p class="mt-1">æ¸¸æˆå°†è‡ªåŠ¨æœç´¢å±€åŸŸç½‘å†…çš„å…¶ä»–ç©å®¶</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- æ¸¸æˆç•Œé¢ -->
+            <div id="game-screen" class="screen hidden">
+                <!-- æ¸¸æˆä¿¡æ¯æ  -->
+                <div class="flex justify-between items-center mb-6">
+                    <div class="text-left">
+                        <p class="text-sm opacity-80">æ¸¸æˆæ¨¡å¼ï¼š<span id="game-mode-display">ç»ƒä¹ æ¨¡å¼</span></p>
+                        <p class="text-sm opacity-80">éš¾åº¦ï¼š<span id="difficulty-display">ç®€å•</span></p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-xl font-bold">å›åˆ <span id="round-counter">1</span></p>
+                    </div>
+                    <div>
+                        <button id="exit-game" class="bg-red-600 hover:bg-red-700 text-white text-sm py-1 px-4 rounded-lg transition-colors duration-300">
+                            é€€å‡ºæ¸¸æˆ
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- ç©å®¶ä¿¡æ¯ -->
+                <div class="grid grid-cols-2 gap-6 mb-8">
+                    <!-- å¯¹æ‰‹ä¿¡æ¯ -->
+                    <div class="bg-white/10 rounded-xl p-4 text-center">
+                        <p class="font-bold text-lg mb-2" id="opponent-name">å¯¹æ‰‹</p>
+                        <div class="flex justify-center items-center space-x-2 mb-2">
+                            <i class="fa fa-bullseye text-yellow-400"></i>
+                            <span id="opponent-bullets">0</span>
+                        </div>
+                        <div class="flex justify-center space-x-4 text-sm opacity-80">
+                            <div>
+                                <span class="block">å•å</span>
+                                <span id="opponent-single-reflect" class="font-bold">2</span>
+                            </div>
+                            <div>
+                                <span class="block">å·¨å</span>
+                                <span id="opponent-mega-reflect" class="font-bold">1</span>
+                            </div>
+                            <div>
+                                <span class="block">åœ°é›·</span>
+                                <span id="opponent-landmine" class="font-bold">2</span>
+                            </div>
+                            <div>
+                                <span class="block">å°é±¼</span>
+                                <span id="opponent-small-fish" class="font-bold">1</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 h-16 flex items-center justify-center">
+                            <div id="opponent-move" class="text-2xl font-bold hidden">
+                                ä¸Šå¼¹
+                            </div>
+                            <div id="opponent-thinking" class="flex flex-col items-center">
+                                <div class="w-8 h-8 border-4 border-t-transparent border-white rounded-full animate-spin"></div>
+                                <span class="mt-2 text-sm">æ€è€ƒä¸­...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ç©å®¶ä¿¡æ¯ -->
+                    <div class="bg-white/10 rounded-xl p-4 text-center">
+                        <p class="font-bold text-lg mb-2" id="player-name">ç©å®¶</p>
+                        <div class="flex justify-center items-center space-x-2 mb-2">
+                            <i class="fa fa-bullseye text-yellow-400"></i>
+                            <span id="player-bullets">0</span>
+                        </div>
+                        <div class="flex justify-center space-x-4 text-sm opacity-80">
+                            <div>
+                                <span class="block">å•å</span>
+                                <span id="player-single-reflect" class="font-bold">2</span>
+                            </div>
+                            <div>
+                                <span class="block">å·¨å</span>
+                                <span id="player-mega-reflect" class="font-bold">1</span>
+                            </div>
+                            <div>
+                                <span class="block">åœ°é›·</span>
+                                <span id="player-landmine" class="font-bold">2</span>
+                            </div>
+                            <div>
+                                <span class="block">å°é±¼</span>
+                                <span id="player-small-fish" class="font-bold">1</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 h-16 flex items-center justify-center">
+                            <div id="player-move" class="text-2xl font-bold hidden">
+                                ä¸Šå¼¹
+                            </div>
+                            <div id="player-select" class="text-sm">
+                                è¯·é€‰æ‹©æ‹›å¼
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- æˆ˜æ–—ç»“æœåŒºåŸŸ -->
+                <div id="battle-result" class="bg-white/10 rounded-xl p-4 mb-8 text-center hidden">
+                    <p class="text-xl font-bold" id="result-text">æˆ˜æ–—ç»“æœ</p>
+                    <p class="text-lg" id="result-description">è¯¦ç»†æè¿°</p>
+                </div>
+                
+                <!-- æ‹›å¼é€‰æ‹©åŒºåŸŸ -->
+                <div id="moves-container" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <!-- ä¸Šå¼¹ -->
+                    <div class="move-card bg-white/10 hover:bg-white/20 rounded-xl p-4 cursor-pointer" data-move="reload">
+                        <h3 class="font-bold text-center mb-2">ä¸Šå¼¹</h3>
+                        <p class="text-xs text-center opacity-80">å­å¼¹æ•°é‡+1</p>
+                        <div class="mt-2 text-center text-sm">
+                            <span class="bg-blue-500/50 px-2 py-1 rounded">æ¶ˆè€—: 0</span>
+                        </div>
+                    </div>
+                    
+                    <!-- å•æª -->
+                    <div class="move-card bg-white/10 hover:bg-white/20 rounded-xl p-4 cursor-pointer" data-move="singleGun">
+                        <h3 class="font-bold text-center mb-2">å•æª</h3>
+                        <p class="text-xs text-center opacity-80">æ€æ­»ä¸Šå¼¹ã€æ³¢é˜²ã€æ ¸é˜²</p>
+                        <div class="mt-2 text-center text-sm">
+                            <span class="bg-blue-500/50 px-2 py-1 rounded">æ¶ˆè€—: 1</span>
+                        </div>
+                    </div>
+                    
+                    <!-- åŒæª -->
+                    <div class="move-card bg-white/10 hover:bg-white/20 rounded-xl p-4 cursor-pointer" data-move="doubleGun">
+                        <h3 class="font-bold text-center mb-2">åŒæª</h3>
+                        <p class="text-xs text-center opacity-80">æ€æ­»ä¸Šå¼¹ã€æ³¢é˜²ã€å•æªã€æ ¸é˜²ã€åœ°é›·</p>
+                        <div class="mt-2 text-center text-sm">
+                            <span class="bg-blue-500/50 px-2 py-1 rounded">æ¶ˆè€—: 2</span>
+                        </div>
+                    </div>
+                    
+                    <!-- æ™®é˜² -->
+                    <div class="move-card bg-white/10 hover:bg-white/20 rounded-xl p-4 cursor-pointer" data-move="normalShield">
+                        <h3 class="font-bold text-center mb-2">æ™®é˜²</h3>
+                        <p class="text-xs text-center opacity-80">é˜²å¾¡å•æªã€åŒæª</p>
+                        <div class="mt-2 text-center text-sm">
+                            <span class="bg-blue-500/50 px-2 py-1 rounded">æ¶ˆè€—: 0</span>
+                        </div>
+                    </div>
+                    
+                    <!-- æ³¢ -->
+                    <div class="move-card bg-white/10 hover:bg-white/20 rounded-xl p-4 cursor-pointer" data-move="wave">
+                        <h3 class="font-bold text-center mb-2">æ³¢</h3>
+                        <p class="text-xs text-center opacity-80">æ€æ­»ä¸Šå¼¹ã€å•æªã€æ™®é˜²ã€å•åã€æ ¸é˜²ã€åœ°é›·ã€åŒæª</p>
+                        <div class="mt-2 text-center text-sm">
+                            <span class="bg-blue-500/50 px-2 py-1 rounded">æ¶ˆè€—: 3</span>
+                        </div>
+                    </div>
+                    
+                    <!-- æ³¢é˜² -->
+                    <div class="move-card bg-white/10 hover:bg-white/20 rounded-xl p-4 cursor-pointer" data-move="waveShield">
+                        <h3 class="font-bold text-center mb-2">æ³¢é˜²</h3>
+                        <p class="text-xs text-center opacity-80">é˜²å¾¡æ³¢ã€å°é±¼ï¼Œåå¼¹åœ°é›·</p>
+                        <div class="mt-2 text-center text-sm">
+                            <span class="bg-blue-500/50 px-2 py-1 rounded">æ¶ˆè€—: 0</span>
+                        </div>
+                    </div>
+                    
+                    <!-- å•å -->
+                    <div class="move-card bg-white/10 hover:bg-white/20 rounded-xl p-4 cursor-pointer" data-move="singleReflect">
+                        <h3 class="font-bold text-center mb-2">å•å</h3>
+                        <p class="text-xs text-center opacity-80">åå¼¹å…¨å±€å•æªã€åŒæª</p>
+                        <div class="mt-2 text-center text-sm">
+                            <span class="bg-purple-500/50 px-2 py-1 rounded">å‰©ä½™: <span id="single-reflect-count">2</span></span>
+                        </div>
+                    </div>
+                    
+                    <!-- å·¨å -->
+                    <div class="move-card bg-white/10 hover:bg-white/20 rounded-xl p-4 cursor-pointer disabled" data-move="megaReflect">
+                        <h3 class="font-bold text-center mb-2">å·¨å</h3>
+                        <p class="text-xs text-center opacity-80">åå¼¹å…¨å±€æ‰€æœ‰ä¸œè¥¿(ç¬¬4å›åˆå¯ç”¨)</p>
+                        <div class="mt-2 text-center text-sm">
+                            <span class="bg-purple-500/50 px-2 py-1 rounded">å‰©ä½™: <span id="mega-reflect-count">1</span></span>
+                        </div>
+                    </div>
+                    
+                    <!-- åœ°é›· -->
+                    <div class="move-card bg-white/10 hover:bg-white/20 rounded-xl p-4 cursor-pointer disabled" data-move="landmine">
+                        <h3 class="font-bold text-center mb-2">åœ°é›·</h3>
+                        <p class="text-xs text-center opacity-80">æ€æ­»ä¸Šå¼¹ã€å•æª(ç¬¬4å›åˆå¯ç”¨)</p>
+                        <div class="mt-2 text-center text-sm">
+                            <span class="bg-purple-500/50 px-2 py-1 rounded">å‰©ä½™: <span id="landmine-count">2</span></span>
+                        </div>
+                    </div>
+                    
+                    <!-- å°é±¼ -->
+                    <div class="move-card bg-white/10 hover:bg-white/20 rounded-xl p-4 cursor-pointer" data-move="smallFish">
+                        <h3 class="font-bold text-center mb-2">å°é±¼</h3>
+                        <p class="text-xs text-center opacity-80">å¸å–åˆ«äººçš„å­å¼¹</p>
+                        <div class="mt-2 text-center text-sm">
+                            <span class="bg-purple-500/50 px-2 py-1 rounded">å‰©ä½™: <span id="small-fish-count">1</span></span>
+                        </div>
+                    </div>
+                    
+                    <!-- æ ¸å¼¹ -->
+                    <div class="move-card bg-white/10 hover:bg-white/20 rounded-xl p-4 cursor-pointer" data-move="nuke">
+                        <h3 class="font-bold text-center mb-2">æ ¸å¼¹</h3>
+                        <p class="text-xs text-center opacity-80">å…¨å±€æ”»å‡»(éœ€è¦5é¢—å­å¼¹)</p>
+                        <div class="mt-2 text-center text-sm">
+                            <span class="bg-blue-500/50 px-2 py-1 rounded">æ¶ˆè€—: 5</span>
+                        </div>
+                    </div>
+                    
+                    <!-- æ ¸é˜² -->
+                    <div class="move-card bg-white/10 hover:bg-white/20 rounded-xl p-4 cursor-pointer" data-move="nukeShield">
+                        <h3 class="font-bold text-center mb-2">æ ¸é˜²</h3>
+                        <p class="text-xs text-center opacity-80">é˜²å¾¡æ ¸å¼¹å’Œåœ°é›·</p>
+                        <div class="mt-2 text-center text-sm">
+                            <span class="bg-blue-500/50 px-2 py-1 rounded">æ¶ˆè€—: 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- æ¸¸æˆç»“æŸç•Œé¢ -->
+            <div id="game-over-screen" class="screen hidden">
+                <div class="max-w-md mx-auto text-center">
+                    <h2 class="text-3xl font-bold mb-6" id="game-result-title">æ¸¸æˆç»“æŸ</h2>
+                    <p class="text-xl mb-8" id="game-result-message">è¯¦ç»†ä¿¡æ¯</p>
+                    
+                    <div class="bg-white/10 rounded-xl p-6 mb-8">
+                        <h3 class="text-xl font-bold mb-4">æˆ˜æ–—æ•°æ®</h3>
+                        <div class="space-y-3 text-left">
+                            <div class="flex justify-between">
+                                <span>æ¸¸æˆæ¨¡å¼:</span>
+                                <span id="result-game-mode" class="font-bold">ç»ƒä¹ æ¨¡å¼</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>éš¾åº¦:</span>
+                                <span id="result-difficulty" class="font-bold">ç®€å•</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>å›åˆæ•°:</span>
+                                <span id="result-rounds" class="font-bold">5</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>ç§¯åˆ†å˜åŒ–:</span>
+                                <span id="result-score-change" class="font-bold text-green-400">+2</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>å½“å‰ç§¯åˆ†:</span>
+                                <span id="result-current-score" class="font-bold">10</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex space-x-4">
+                        <button id="play-again" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-300">
+                            å†æ¥ä¸€å±€
+                        </button>
+                        <button id="back-to-menu-from-game-over" class="flex-1 bg-white/20 hover:bg-white/30 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-300">
+                            è¿”å›ä¸»èœå•
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- å¤šäººæ¸¸æˆæˆ¿é—´ç•Œé¢ -->
+            <div id="room-screen" class="screen hidden">
+                <div class="max-w-md mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-3xl font-bold">æˆ¿é—´</h2>
+                        <div>
+                            <span class="text-lg">æˆ¿é—´å·: <span id="current-room-id" class="font-bold">12345</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white/10 rounded-xl p-6 mb-6">
+                        <h3 class="text-xl font-bold mb-4">ç©å®¶åˆ—è¡¨</h3>
+                        <div id="player-list" class="space-y-3">
+                            <div class="flex justify-between items-center p-2 bg-white/10 rounded-lg">
+                                <span class="font-bold">ç©å®¶1</span>
+                                <span class="text-green-400">å‡†å¤‡</span>
+                            </div>
+                            <div class="flex justify-between items-center p-2 bg-white/10 rounded-lg">
+                                <span class="font-bold">ç©å®¶2</span>
+                                <span class="text-yellow-400">ç­‰å¾…</span>
+                            </div>
+                            <div class="flex justify-between items-center p-2 bg-white/10 rounded-lg">
+                                <span class="font-bold">ç©å®¶3</span>
+                                <span class="text-yellow-400">ç­‰å¾…</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex space-x-4">
+                        <button id="ready-up" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-300">
+                            å‡†å¤‡
+                        </button>
+                        <button id="leave-room" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-300">
+                            ç¦»å¼€æˆ¿é—´
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-        
-        <!-- µÚÈıĞĞÕĞÊ½ -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <button data-move="mine" class="move-btn bg-underwater-700 hover:bg-underwater-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2" disabled>
-            <div class="w-12 h-12 flex items-center justify-center">
-              <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/b3c34558e89d461c8fcbdeab0c60fcd0~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=gTfUjPEMy9OtNDmHt0jz4WHjx9k%3D" 
-                   alt="µØÀ×" 
-                   class="w-10 h-10 object-contain">
-            </div>
-            <span>µØÀ×</span>
-            <span class="text-xs text-underwater-200">2´Î/¾Ö (4»ØºÏºó)</span>
-          </button>
-          
-          <button data-move="fish" class="move-btn bg-underwater-700 hover:bg-underwater-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2">
-            <div class="w-12 h-12 flex items-center justify-center">
-              <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/00d8746f46534e569e06c8896415abe3~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771573&x-signature=ni%2B8RwbSCUFPQ8OF5WGepIVWXYA%3D" 
-                   alt="Ğ¡Óã" 
-                   class="w-10 h-10 object-contain">
-            </div>
-            <span>Ğ¡Óã</span>
-            <span class="text-xs text-underwater-200">1´Î/¾Ö</span>
-          </button>
-          
-          <button data-move="nuke" class="move-btn bg-underwater-700 hover:bg-underwater-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2">
-            <div class="w-12 h-12 flex items-center justify-center">
-              <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/4db8a8ef792e43dcb5485f79b182b390~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=1ATi%2Bv%2Fbx3YNO%2FO%2FTsLy9lsM6go%3D" 
-                   alt="ºËµ¯" 
-                   class="w-10 h-10 object-contain">
-            </div>
-            <span>ºËµ¯</span>
-            <span class="text-xs text-underwater-200">ÏûºÄ5×Óµ¯</span>
-          </button>
-          
-          <button data-move="nuke_defense" class="move-btn bg-underwater-700 hover:bg-underwater-600 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2">
-            <div class="w-12 h-12 flex items-center justify-center">
-              <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/4adaf6f684ea4cd1b36e55da20a822a0~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771573&x-signature=69HLARNyDtkk46bvqAQT1wrYNbo%3D" 
-                   alt="ºË·À" 
-                   class="w-10 h-10 object-contain">
-            </div>
-            <span>ºË·À</span>
-            <span class="text-xs text-underwater-200">ÎŞĞè×Óµ¯</span>
-          </button>
-        </div>
-      </div>
     </div>
-    
-    <!-- ¹æÔòµ¯´° -->
-    <div id="rules-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-      <div class="bg-underwater-800 text-white rounded-xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-2xl font-bold">ÓÎÏ·¹æÔò</h2>
-          <button id="close-rules-btn" class="text-white hover:text-underwater-200">
-            <i class="fa fa-times text-xl"></i>
-          </button>
-        </div>
-        
-        <div class="space-y-4">
-          <div class="bg-underwater-700 p-4 rounded-lg">
-            <h3 class="text-xl font-bold mb-2">»ù±¾¹æÔò</h3>
-            <p>»®È­Ğ¡Óã°æÊÇÒ»¿î»ùÓÚ´«Í³»®È­ÓÎÏ·µÄ¶ÔÕ½ÓÎÏ·¡£Íæ¼ÒÍ¨¹ıÑ¡Ôñ²»Í¬µÄÕĞÊ½½øĞĞ¶ÔÕ½£¬Ä¿±êÊÇ½«¶Ô·½µÄÉúÃüÖµ½µÖÁ0¡£</p>
-          </div>
-          
-          <div class="bg-underwater-700 p-4 rounded-lg">
-            <h3 class="text-xl font-bold mb-2">ÉúÃüÖµÏµÍ³</h3>
-            <p>Ë«·½³õÊ¼ÉúÃüÖµ¾ùÎª100µã£¬µ±Ò»·½ÉúÃüÖµ½µÖÁ0Ê±£¬ÓÎÏ·½áÊø£¬ÁíÒ»·½»ñÊ¤¡£</p>
-          </div>
-          
-          <div class="bg-underwater-700 p-4 rounded-lg">
-            <h3 class="text-xl font-bold mb-2">ÕĞÊ½ËµÃ÷</h3>
-            <ul class="space-y-2">
-              <li><span class="font-bold">ÉÏµ¯</span> - ×Óµ¯ÊıÁ¿+1</li>
-              <li><span class="font-bold">µ¥Ç¹</span> - ĞèÒªÒ»¿Å×Óµ¯´ò³öµ¥Ç¹£¬¿ÉÒÔÉ±ËÀÉÏµ¯¡¢²¨·À¡¢ºË·À£¨Ôì³É15µãÉËº¦£©</li>
-              <li><span class="font-bold">Ë«Ç¹</span> - ĞèÒªÁ½¿Å×Óµ¯´ò³öË«Ç¹£¬¿ÉÒÔÉ±ËÀÉÏµ¯¡¢²¨·ÀºÍµ¥Ç¹¡¢ºË·À¡¢µØÀ×£¨Ôì³É25µãÉËº¦£©</li>
-              <li><span class="font-bold">ÆÕ·À</span> - ¿ÉÒÔ·ÀÓùµ¥Ç¹¡¢Ë«Ç¹£¬²»ĞèÒª×Óµ¯</li>
-              <li><span class="font-bold">²¨</span> - ĞèÒªÈı¿Å×Óµ¯´ò³ö²¨£¬¿ÉÒÔÉ±ËÀÉÏµ¯¡¢µ¥Ç¹¡¢ÆÕ·À¡¢µ¥·´¡¢ºË·À¡¢µØÀ×ºÍË«Ç¹£¨Ôì³É35µãÉËº¦£©</li>
-              <li><span class="font-bold">²¨·À</span> - ¿ÉÒÔ·ÀÓù²¨¡¢Ğ¡Óã£¬¿ÉÒÔ·´µ¯µØÀ×£¬²»ĞèÒª×Óµ¯</li>
-              <li><span class="font-bold">µ¥·´</span> - Ò»¾ÖÓĞÁ½´Î£¬¿ÉÒÔ·´µ¯È«¾Öµ¥Ç¹¡¢Ë«Ç¹£¬²»¿ÉÒÔÁ¬³ö</li>
-              <li><span class="font-bold">¾Ş·´</span> - Ò»¾ÖÓĞÒ»´Î£¬¿ÉÒÔ·´µ¯È«¾ÖËùÓĞ¶«Î÷£¬±ØĞëÔÚµÚ4»ØºÏ¼°ÒÔºó³ö</li>
-              <li><span class="font-bold">µØÀ×</span> - Ò»¾ÖÓĞÁ½´Î£¬±ØĞëÔÚµÚ4»ØºÏ¼°ÒÔºó³ö£¬¿ÉÒÔÉ±ËÀÉÏµ¯¡¢µ¥Ç¹£¬»á±»²¨·À·´µ¯£¨Ôì³É20µãÉËº¦£©</li>
-              <li><span class="font-bold">Ğ¡Óã</span> - ¿ÉÒÔÎüÈ¡±ğÈËµÄ×Óµ¯£¬Ò»¾Ö½öÄÜ³öÒ»´Î¡£Èç¹ûÓĞ¾Ş·´£¬Ôò»áÈÃÎüµÄÈËÎü×Ô¼º¡£ÈôÓĞ¶à¸öÈËÎüÒ»¸öÈË£¬Ôò¾ù·ÖÏòÏÂÈ¡Õû</li>
-              <li><span class="font-bold">ºËµ¯</span> - È«¾Ö¹¥»÷£¬¿ÉÒÔÉ±ËÀ³ıÁËºË·ÀºÍ¾Ş·´µÄËùÓĞ¶«Î÷£¨Ôì³É50µãÉËº¦£©</li>
-              <li><span class="font-bold">ºË·À</span> - ¿ÉÒÔ·ÀÓùºËµ¯£¬²»ĞèÒª×Óµ¯</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- ÉèÖÃµ¯´° -->
-    <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-      <div class="bg-underwater-800 text-white rounded-xl p-6 max-w-md w-full">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-2xl font-bold">ÉèÖÃ</h2>
-          <button id="close-settings-btn" class="text-white hover:text-underwater-200">
-            <i class="fa fa-times text-xl"></i>
-          </button>
-        </div>
-        
-        <div class="space-y-4">
-          <div>
-            <label class="block mb-2">ÒôĞ§ÒôÁ¿</label>
-            <input type="range" min="0" max="100" value="80" class="w-full">
-          </div>
-          
-          <div>
-            <label class="block mb-2">±³¾°ÒôÀÖÒôÁ¿</label>
-            <input type="range" min="0" max="100" value="50" class="w-full">
-          </div>
-          
-          <div class="flex items-center justify-between">
-            <span>ÒôĞ§</span>
-            <label class="switch">
-              <input type="checkbox" checked>
-              <span class="slider round"></span>
-            </label>
-          </div>
-          
-          <button class="w-full bg-underwater-600 hover:bg-underwater-500 text-white py-3 rounded-xl transition-all duration-300">
-            ±£´æÉèÖÃ
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- ÔİÍ£µ¯´° -->
-    <div id="pause-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-      <div class="bg-underwater-800 text-white rounded-xl p-6 max-w-md w-full text-center">
-        <h2 class="text-2xl font-bold mb-6">ÓÎÏ·ÔİÍ£</h2>
-        
-        <div class="space-y-4">
-          <button id="resume-btn" class="w-full bg-underwater-600 hover:bg-underwater-500 text-white py-3 rounded-xl transition-all duration-300">
-            ¼ÌĞøÓÎÏ·
-          </button>
-          
-          <button id="pause-rules-btn" class="w-full bg-underwater-700 hover:bg-underwater-600 text-white py-3 rounded-xl transition-all duration-300">
-            ²é¿´¹æÔò
-          </button>
-          
-          <button id="exit-to-menu-btn" class="w-full bg-danger hover:bg-red-600 text-white py-3 rounded-xl transition-all duration-300">
-            ·µ»ØÖ÷²Ëµ¥
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- ¶àÈËÁª»úµ¯´° -->
-    <div id="multiplayer-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-      <div class="bg-underwater-800 text-white rounded-xl p-6 max-w-md w-full">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-2xl font-bold">¶àÈËÁª»ú</h2>
-          <button id="close-multiplayer-btn" class="text-white hover:text-underwater-200">
-            <i class="fa fa-times text-xl"></i>
-          </button>
-        </div>
-        
-        <div class="space-y-4">
-          <div>
-            <label class="block mb-2">·¿¼äID</label>
-            <div class="flex gap-2">
-              <input type="text" id="room-id-input" placeholder="ÊäÈë·¿¼äID" class="flex-1 bg-underwater-700 border border-underwater-600 rounded-lg px-4 py-2 text-white">
-              <button id="join-room-btn" class="bg-underwater-600 hover:bg-underwater-500 text-white px-4 py-2 rounded-lg transition-all duration-300">
-                ¼ÓÈë
-              </button>
+
+    <!-- é€šçŸ¥æç¤º -->
+    <div id="notification" class="fixed bottom-4 right-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-4 shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 max-w-xs">
+        <div class="flex items-start">
+            <div id="notification-icon" class="mr-3 text-lg">
+                <i class="fa fa-info-circle text-blue-400"></i>
             </div>
-          </div>
-          
-          <button id="create-room-btn" class="w-full bg-underwater-600 hover:bg-underwater-500 text-white py-3 rounded-xl transition-all duration-300">
-            ´´½¨·¿¼ä
-          </button>
-          
-          <div class="text-center text-underwater-200 text-sm">
-            »ò
-          </div>
-          
-          <button class="w-full bg-underwater-700 hover:bg-underwater-600 text-white py-3 rounded-xl transition-all duration-300">
-            ¿ìËÙÆ¥Åä
-          </button>
+            <div class="flex-1">
+                <h4 id="notification-title" class="font-bold text-sm mb-1">é€šçŸ¥æ ‡é¢˜</h4>
+                <p id="notification-message" class="text-xs opacity-80">é€šçŸ¥å†…å®¹</p>
+            </div>
+            <button id="close-notification" class="text-white/50 hover:text-white">
+                <i class="fa fa-times"></i>
+            </button>
         </div>
-      </div>
     </div>
-    
-    <!-- ·¿¼ä´´½¨³É¹¦µ¯´° -->
-    <div id="room-created-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-      <div class="bg-underwater-800 text-white rounded-xl p-6 max-w-md w-full text-center">
-        <h2 class="text-2xl font-bold mb-4">·¿¼ä´´½¨³É¹¦</h2>
-        
-        <div class="bg-underwater-700 p-4 rounded-lg mb-6">
-          <p class="text-lg">·¿¼äID: <span id="created-room-id" class="font-bold text-xl">123456</span></p>
-        </div>
-        
-        <p class="mb-6">µÈ´ıÆäËûÍæ¼Ò¼ÓÈë...</p>
-        
-        <div class="flex gap-4">
-          <button id="copy-room-id-btn" class="flex-1 bg-underwater-700 hover:bg-underwater-600 text-white py-3 rounded-xl transition-all duration-300">
-            ¸´ÖÆ·¿¼äID
-          </button>
-          <button id="cancel-room-btn" class="flex-1 bg-danger hover:bg-red-600 text-white py-3 rounded-xl transition-all duration-300">
-            È¡Ïû
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- µ×²¿°æÈ¨ĞÅÏ¢ -->
-    <div class="absolute bottom-0 left-0 right-0 p-4 text-center text-white text-sm">
-      <p>? 2025 »®È­Ğ¡Óã°æ - ËÀÍöÖÕ½á°æ</p>
-    </div>
-  </div>
-  
-  <script>
-    // ÓÎÏ·×´Ì¬ - ĞÂÔöÉúÃüÖµÏµÍ³
-    const gameState = {
-      round: 1,
-      playerBullets: 0,
-      opponentBullets: 0,
-      playerHealth: 100,
-      opponentHealth: 100,
-      playerMoves: {
-        counterattack: 2,
-        megaCounterattack: 1,
-        mine: 2,
-        fish: 1
-      },
-      opponentMoves: {
-        counterattack: 2,
-        megaCounterattack: 1,
-        mine: 2,
-        fish: 1
-      },
-      gameActive: false,
-      currentMove: null,
-      opponentMove: null,
-      gameMode: 'single' // 'single', 'multi', 'practice'
-    };
-    
-    // ÕĞÊ½ÉËº¦Öµ
-    const moveDamage = {
-      single_shot: 15,
-      double_shot: 25,
-      wave: 35,
-      mine: 20,
-      nuke: 50
-    };
-    
-    // ÕĞÊ½Í¼Æ¬Ó³Éä
-    const moveImages = {
-      up: '<i class="fa fa-arrow-up text-4xl text-underwater-500"></i>',
-      single_shot: '<img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/24ba51f2056848bf8d98e2a4d7af67c9~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=YxwPtiT%2FKwurRfBuDbLBVlkXhJU%3D" alt="µ¥Ç¹" class="w-full h-full object-contain">',
-      double_shot: '<img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/953ba657f98c4af590a3a9ffb068ee33~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771573&x-signature=umpX4nPd6707EJBaXelVevR5dp0%3D" alt="Ë«Ç¹" class="w-full h-full object-contain">',
-      normal_defense: '<img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/914cfb6422814f2ca3b488d472d438de~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=xHiYAL2Zw68YX31AO%2Bfe796qPwQ%3D" alt="ÆÕ·À" class="w-full h-full object-contain">',
-      wave: '<img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/be36076b34ca47e785e64788cdef0800~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=v4H4PI306eJpF8N1UXZTAKpnamc%3D" alt="²¨" class="w-full h-full object-contain">',
-      wave_defense: '<div class="relative w-full h-full"><img src="https://p9-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/914cfb6422814f2ca3b488d472d438de~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=xHiYAL2Zw68YX31AO%2Bfe796qPwQ%3D" alt="²¨·À" class="w-full h-full object-contain"><div class="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center"><img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/be36076b34ca47e785e64788cdef0800~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=v4H4PI306eJpF8N1UXZTAKpnamc%3D" alt="²¨" class="w-2 h-2 object-contain"></div></div>',
-      counterattack: '<img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/ff17e89747674845af0efc34d4d882b7~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771573&x-signature=oawjE4RNiRA2jweYGRnppgjNtCI%3D" alt="µ¥·´" class="w-full h-full object-contain">',
-      mega_counterattack: '<img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/ff17e89747674845af0efc34d4d882b7~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771573&x-signature=oawjE4RNiRA2jweYGRnppgjNtCI%3D" alt="¾Ş·´" class="w-full h-full object-contain">',
-      mine: '<img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/b3c34558e89d461c8fcbdeab0c60fcd0~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=gTfUjPEMy9OtNDmHt0jz4WHjx9k%3D" alt="µØÀ×" class="w-full h-full object-contain">',
-      fish: '<img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/00d8746f46534e569e06c8896415abe3~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771573&x-signature=ni%2B8RwbSCUFPQ8OF5WGepIVWXYA%3D" alt="Ğ¡Óã" class="w-full h-full object-contain">',
-      nuke: '<img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/4db8a8ef792e43dcb5485f79b182b390~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771557&x-signature=1ATi%2Bv%2Fbx3YNO%2FO%2FTsLy9lsM6go%3D" alt="ºËµ¯" class="w-full h-full object-contain">',
-      nuke_defense: '<img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/4adaf6f684ea4cd1b36e55da20a822a0~tplv-a9rns2rl98-image.image?rcl=20251115120539C966E4BAF0786E61F710&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1765771573&x-signature=69HLARNyDtkk46bvqAQT1wrYNbo%3D" alt="ºË·À" class="w-full h-full object-contain">'
-    };
-    
-    // ÕĞÊ½Ãû³ÆÓ³Éä
-    const moveNames = {
-      up: 'ÉÏµ¯',
-      single_shot: 'µ¥Ç¹',
-      double_shot: 'Ë«Ç¹',
-      normal_defense: 'ÆÕ·À',
-      wave: '²¨',
-      wave_defense: '²¨·À',
-      counterattack: 'µ¥·´',
-      mega_counterattack: '¾Ş·´',
-      mine: 'µØÀ×',
-      fish: 'Ğ¡Óã',
-      nuke: 'ºËµ¯',
-      nuke_defense: 'ºË·À'
-    };
-    
-    // ÕĞÊ½Ïà¿Ë¹ØÏµ
-    const moveRelations = {
-      up: {
-        beats: [],
-        losesTo: ['single_shot', 'double_shot', 'wave', 'mine', 'nuke'],
-        blocks: [],
-        description: '×Óµ¯ÊıÁ¿+1'
-      },
-      single_shot: {
-        beats: ['up', 'wave_defense', 'nuke_defense'],
-        losesTo: ['normal_defense', 'wave', 'counterattack', 'mega_counterattack', 'mine', 'nuke'],
-        blocks: [],
-        cost: 1,
-        damage: 15,
-        description: 'ĞèÒªÒ»¿Å×Óµ¯´ò³öµ¥Ç¹£¬¿ÉÒÔÉ±ËÀÉÏµ¯¡¢²¨·À¡¢ºË·À'
-      },
-      double_shot: {
-        beats: ['up', 'wave_defense', 'single_shot', 'nuke_defense', 'mine'],
-        losesTo: ['normal_defense', 'wave', 'counterattack', 'mega_counterattack', 'nuke'],
-        blocks: [],
-        cost: 2,
-        damage: 25,
-        description: 'ĞèÒªÁ½¿Å×Óµ¯´ò³öË«Ç¹£¬¿ÉÒÔÉ±ËÀÉÏµ¯¡¢²¨·ÀºÍµ¥Ç¹¡¢ºË·À¡¢µØÀ×'
-      },
-      normal_defense: {
-        beats: ['single_shot', 'double_shot'],
-        losesTo: ['wave', 'nuke'],
-        blocks: [],
-        description: '¿ÉÒÔ·ÀÓùµ¥Ç¹¡¢Ë«Ç¹£¬²»ĞèÒª×Óµ¯'
-      },
-      wave: {
-        beats: ['up', 'single_shot', 'normal_defense', 'counterattack', 'nuke_defense', 'mine', 'double_shot'],
-        losesTo: ['wave_defense', 'mega_counterattack', 'nuke'],
-        blocks: [],
-        cost: 3,
-        damage: 35,
-        description: 'ĞèÒªÈı¿Å×Óµ¯´ò³ö²¨£¬¿ÉÒÔÉ±ËÀÉÏµ¯¡¢µ¥Ç¹¡¢ÆÕ·À¡¢µ¥·´¡¢ºË·À¡¢µØÀ×ºÍË«Ç¹'
-      },
-      wave_defense: {
-        beats: ['wave', 'fish'],
-        losesTo: ['single_shot', 'double_shot', 'nuke'],
-        reflects: ['mine'],
-        description: '¿ÉÒÔ·ÀÓù²¨¡¢Ğ¡Óã£¬¿ÉÒÔ·´µ¯µØÀ×£¬²»ĞèÒª×Óµ¯'
-      },
-      counterattack: {
-        beats: ['single_shot', 'double_shot'],
-        losesTo: ['wave', 'wave_defense', 'nuke'],
-        reflects: ['single_shot', 'double_shot'],
-        limit: 2,
-        description: 'Ò»¾ÖÓĞÁ½´Î£¬¿ÉÒÔ·´µ¯È«¾Öµ¥Ç¹¡¢Ë«Ç¹£¬²»¿ÉÒÔÁ¬³ö'
-      },
-      mega_counterattack: {
-        beats: [],
-        losesTo: [],
-        reflects: ['all'],
-        limit: 1,
-        roundLimit: 4,
-        description: 'Ò»¾ÖÓĞÒ»´Î£¬¿ÉÒÔ·´µ¯È«¾ÖËùÓĞ¶«Î÷£¬±ØĞëÔÚµÚ4»ØºÏ¼°ÒÔºó³ö'
-      },
-      mine: {
-        beats: ['up', 'single_shot'],
-        losesTo: ['double_shot', 'wave', 'wave_defense', 'nuke'],
-        blocks: [],
-        limit: 2,
-        roundLimit: 4,
-        damage: 20,
-        description: 'Ò»¾ÖÓĞÁ½´Î£¬±ØĞëÔÚµÚ4»ØºÏ¼°ÒÔºó³ö£¬¿ÉÒÔÉ±ËÀÉÏµ¯¡¢µ¥Ç¹£¬»á±»²¨·À·´µ¯'
-      },
-      fish: {
-        beats: [],
-        losesTo: ['wave_defense', 'mega_counterattack', 'nuke'],
-        steals: true,
-        limit: 1,
-        description: '¿ÉÒÔÎüÈ¡±ğÈËµÄ×Óµ¯£¬Ò»¾Ö½öÄÜ³öÒ»´Î¡£Èç¹ûÓĞ¾Ş·´£¬Ôò»áÈÃÎüµÄÈËÎü×Ô¼º¡£ÈôÓĞ¶à¸öÈËÎüÒ»¸öÈË£¬Ôò¾ù·ÖÏòÏÂÈ¡Õû'
-      },
-      nuke: {
-        beats: ['up', 'single_shot', 'double_shot', 'normal_defense', 'wave', 'wave_defense', 'counterattack', 'mine', 'fish'],
-        losesTo: ['nuke_defense', 'mega_counterattack'],
-        blocks: [],
-        cost: 5,
-        damage: 50,
-        description: 'È«¾Ö¹¥»÷£¬¿ÉÒÔÉ±ËÀ³ıÁËºË·ÀºÍ¾Ş·´µÄËùÓĞ¶«Î÷'
-      },
-      nuke_defense: {
-        beats: ['nuke'],
-        losesTo: ['single_shot', 'double_shot', 'wave'],
-        blocks: [],
-        description: '¿ÉÒÔ·ÀÓùºËµ¯£¬²»ĞèÒª×Óµ¯'
-      }
-    };
-    
-    // DOMÔªËØ
-    const elements = {
-      mainMenu: document.getElementById('main-menu'),
-      gameScreen: document.getElementById('game-screen'),
-      gameOver: document.getElementById('game-over'),
-      gameOverTitle: document.getElementById('game-over-title'),
-      gameOverMessage: document.getElementById('game-over-message'),
-      rulesModal: document.getElementById('rules-modal'),
-      settingsModal: document.getElementById('settings-modal'),
-      pauseModal: document.getElementById('pause-modal'),
-      multiplayerModal: document.getElementById('multiplayer-modal'),
-      roomCreatedModal: document.getElementById('room-created-modal'),
-      battleResult: document.getElementById('battle-result'),
-      resultMessage: document.getElementById('result-message'),
-      movesContainer: document.getElementById('moves-container'),
-      roundCounter: document.getElementById('round-counter'),
-      bulletCounter: document.getElementById('bullet-counter'),
-      playerHealth: document.getElementById('player-health'),
-      playerHealthText: document.getElementById('player-health-text'),
-      opponentHealth: document.getElementById('opponent-health'),
-      opponentHealthText: document.getElementById('opponent-health-text'),
-      playerBullets: document.getElementById('player-bullets'),
-      opponentBullets: document.getElementById('opponent-bullets'),
-      playerMove: document.getElementById('player-move'),
-      opponentMove: document.getElementById('opponent-move'),
-      playerCounterattack: document.getElementById('player-counterattack'),
-      opponentCounterattack: document.getElementById('opponent-counterattack'),
-      playerMegaCounterattack: document.getElementById('player-mega-counterattack'),
-      opponentMegaCounterattack: document.getElementById('opponent-mega-counterattack'),
-      playerMine: document.getElementById('player-mine'),
-      opponentMine: document.getElementById('opponent-mine'),
-      playerFish: document.getElementById('player-fish'),
-      opponentFish: document.getElementById('opponent-fish'),
-      bubblesContainer: document.getElementById('bubbles-container')
-    };
-    
-    // °´Å¥ÊÂ¼ş¼àÌı
-    document.getElementById('rules-btn').addEventListener('click', () => {
-      elements.rulesModal.classList.remove('hidden');
-    });
-    
-    document.getElementById('close-rules-btn').addEventListener('click', () => {
-      elements.rulesModal.classList.add('hidden');
-    });
-    
-    document.getElementById('settings-btn').addEventListener('click', () => {
-      elements.settingsModal.classList.remove('hidden');
-    });
-    
-    document.getElementById('close-settings-btn').addEventListener('click', () => {
-      elements.settingsModal.classList.add('hidden');
-    });
-    
-    document.getElementById('single-player-btn').addEventListener('click', () => {
-      startGame('single');
-    });
-    
-    document.getElementById('multi-player-btn').addEventListener('click', () => {
-      elements.multiplayerModal.classList.remove('hidden');
-    });
-    
-    document.getElementById('close-multiplayer-btn').addEventListener('click', () => {
-      elements.multiplayerModal.classList.add('hidden');
-    });
-    
-    document.getElementById('create-room-btn').addEventListener('click', () => {
-      const roomId = Math.floor(100000 + Math.random() * 900000);
-      document.getElementById('created-room-id').textContent = roomId;
-      elements.multiplayerModal.classList.add('hidden');
-      elements.roomCreatedModal.classList.remove('hidden');
-    });
-    
-    document.getElementById('copy-room-id-btn').addEventListener('click', () => {
-      const roomId = document.getElementById('created-room-id').textContent;
-      navigator.clipboard.writeText(roomId).then(() => {
-        showNotification('·¿¼äIDÒÑ¸´ÖÆµ½¼ôÌù°å');
-      });
-    });
-    
-    document.getElementById('cancel-room-btn').addEventListener('click', () => {
-      elements.roomCreatedModal.classList.add('hidden');
-    });
-    
-    document.getElementById('practice-btn').addEventListener('click', () => {
-      startGame('practice');
-    });
-    
-    document.getElementById('pause-btn').addEventListener('click', () => {
-      elements.pauseModal.classList.remove('hidden');
-      gameState.gameActive = false;
-    });
-    
-    document.getElementById('resume-btn').addEventListener('click', () => {
-      elements.pauseModal.classList.add('hidden');
-      gameState.gameActive = true;
-    });
-    
-    document.getElementById('pause-rules-btn').addEventListener('click', () => {
-      elements.pauseModal.classList.add('hidden');
-      elements.rulesModal.classList.remove('hidden');
-    });
-    
-    document.getElementById('exit-to-menu-btn').addEventListener('click', () => {
-      elements.pauseModal.classList.add('hidden');
-      elements.gameScreen.classList.add('hidden');
-      elements.mainMenu.classList.remove('hidden');
-      resetGame();
-    });
-    
-    document.getElementById('surrender-btn').addEventListener('click', () => {
-      if (confirm('È·¶¨ÒªÍ¶½µÂğ£¿')) {
-        endGame('opponent');
-      }
-    });
-    
-    document.getElementById('continue-btn').addEventListener('click', () => {
-      elements.battleResult.classList.add('hidden');
-      elements.movesContainer.classList.remove('hidden');
-      nextRound();
-    });
-    
-    document.getElementById('end-game-btn').addEventListener('click', () => {
-      elements.gameScreen.classList.add('hidden');
-      elements.mainMenu.classList.remove('hidden');
-      resetGame();
-    });
-    
-    document.getElementById('play-again-btn').addEventListener('click', () => {
-      elements.gameOver.classList.add('hidden');
-      resetGame();
-      startGame(gameState.gameMode);
-    });
-    
-    document.getElementById('back-to-menu-btn').addEventListener('click', () => {
-      elements.gameOver.classList.add('hidden');
-      elements.gameScreen.classList.add('hidden');
-      elements.mainMenu.classList.remove('hidden');
-      resetGame();
-    });
-    
-    // ÕĞÊ½°´Å¥ÊÂ¼ş¼àÌı
-    document.querySelectorAll('[data-move]').forEach(button => {
-      button.addEventListener('click', () => {
-        if (!gameState.gameActive) return;
-        
-        const move = button.getAttribute('data-move');
-        
-        // ¼ì²éÕĞÊ½ÊÇ·ñ¿ÉÓÃ
-        if (!isMoveAvailable(move)) {
-          showNotification('¸ÃÕĞÊ½²»¿ÉÓÃ');
-          return;
+
+    <script>
+        // æ¸¸æˆæ•°æ®
+        const gameData = {
+            currentUser: null,
+            users: JSON.parse(localStorage.getItem('fishGameUsers')) || {},
+            gameState: {
+                currentRound: 1,
+                playerBullets: 0,
+                opponentBullets: 0,
+                playerSpecialMoves: {
+                    singleReflect: 2,
+                    megaReflect: 1,
+                    landmine: 2,
+                    smallFish: 1
+                },
+                opponentSpecialMoves: {
+                    singleReflect: 2,
+                    megaReflect: 1,
+                    landmine: 2,
+                    smallFish: 1
+                },
+                gameMode: "practice", // practice, singlePlayer, multiPlayer
+                difficulty: "easy", // easy, normal, hard
+                roomId: null,
+                isPlayerTurn: true,
+                lastPlayerMove: null,
+                lastOpponentMove: null,
+                isGameOver: false,
+                winner: null,
+                scoreChange: 0
+            },
+            // æ‹›å¼æ•°æ®
+            moves: {
+                reload: {
+                    name: "ä¸Šå¼¹",
+                    cost: 0,
+                    description: "å­å¼¹æ•°é‡+1",
+                    counters: []
+                },
+                singleGun: {
+                    name: "å•æª",
+                    cost: 1,
+                    description: "éœ€è¦ä¸€é¢—å­å¼¹æ‰“å‡ºå•æªï¼Œå¯ä»¥æ€æ­»ä¸Šå¼¹ã€æ³¢é˜²ã€æ ¸é˜²",
+                    counters: ["reload", "waveShield", "nukeShield"]
+                },
+                doubleGun: {
+                    name: "åŒæª",
+                    cost: 2,
+                    description: "éœ€è¦ä¸¤é¢—å­å¼¹æ‰“å‡ºåŒæªï¼Œå¯ä»¥æ€æ­»ä¸Šå¼¹ã€æ³¢é˜²å’Œå•æªã€æ ¸é˜²ã€åœ°é›·",
+                    counters: ["reload", "waveShield", "singleGun", "nukeShield", "landmine"]
+                },
+                normalShield: {
+                    name: "æ™®é˜²",
+                    cost: 0,
+                    description: "å¯ä»¥é˜²å¾¡å•æªã€åŒæªï¼Œä¼šè¢«æ³¢æ€æ­»ï¼Œä¸éœ€è¦å­å¼¹",
+                    counters: ["singleGun", "doubleGun"]
+                },
+                wave: {
+                    name: "æ³¢",
+                    cost: 3,
+                    description: "éœ€è¦ä¸‰é¢—å­å¼¹æ‰“å‡ºæ³¢ï¼Œå¯ä»¥æ€æ­»ä¸Šå¼¹ã€å•æªã€æ™®é˜²ã€å•åã€æ ¸é˜²ã€åœ°é›·ã€åŒæªå’Œå°é±¼",
+                    counters: ["reload", "singleGun", "normalShield", "singleReflect", "nukeShield", "landmine", "doubleGun", "smallFish"]
+                },
+                waveShield: {
+                    name: "æ³¢é˜²",
+                    cost: 0,
+                    description: "å¯ä»¥é˜²å¾¡æ³¢ï¼Œå¯ä»¥åå¼¹åœ°é›·ï¼Œä¸éœ€è¦å­å¼¹",
+                    counters: ["wave", "landmine"]
+                },
+                singleReflect: {
+                    name: "å•å",
+                    cost: 0,
+                    description: "ä¸€å±€æœ‰ä¸¤æ¬¡ï¼Œå¯ä»¥åå¼¹å…¨å±€å•æªã€åŒæªï¼Œä¸å¯ä»¥è¿å‡ºï¼Œä¸å°é±¼æŠµæ¶ˆ",
+                    counters: ["singleGun", "doubleGun"],
+                    maxUses: 2
+                },
+                megaReflect: {
+                    name: "å·¨å",
+                    cost: 0,
+                    description: "ä¸€å±€æœ‰ä¸€æ¬¡ï¼Œå¯ä»¥åå¼¹å…¨å±€ï¼ˆåŒ…æ‹¬æ ¸å¼¹ï¼‰æ‰€æœ‰ä¸œè¥¿ï¼ˆä¸å½±å“ä¸Šå¼¹ï¼‰ï¼Œå¿…é¡»åœ¨ç¬¬4å›åˆåŠä»¥åå‡º",
+                    counters: ["singleGun", "doubleGun", "wave", "nuke", "landmine"],
+                    maxUses: 1,
+                    minRound: 4
+                },
+                landmine: {
+                    name: "åœ°é›·",
+                    cost: 0,
+                    description: "ä¸€å±€æœ‰ä¸¤æ¬¡ï¼Œå¿…é¡»åœ¨ç¬¬4å›åˆåŠä»¥åå‡ºï¼Œå¯ä»¥æ€æ­»ä¸Šå¼¹ã€å•æªï¼Œä¸æ¶ˆè€—å­å¼¹ï¼Œä¸èƒ½è¿å‡ºï¼Œä¸å°é±¼æŠµæ¶ˆ",
+                    counters: ["reload", "singleGun"],
+                    maxUses: 2,
+                    minRound: 4
+                },
+                smallFish: {
+                    name: "å°é±¼",
+                    cost: 0,
+                    description: "å¯ä»¥å¸å–åˆ«äººçš„æ‰€æœ‰å­å¼¹ï¼Œä¸€å±€ä»…èƒ½å‡ºä¸€æ¬¡ï¼Œä¸å•åã€å•æªã€åŒæªã€åœ°é›·æŠµæ¶ˆï¼Œä¼šè¢«æ³¢ã€æ ¸å¼¹æ€æ­»",
+                    maxUses: 1
+                },
+                nuke: {
+                    name: "æ ¸å¼¹",
+                    cost: 5,
+                    description: "å…¨å±€æ”»å‡»ï¼Œå¯ä»¥æ€æ­»é™¤äº†æ ¸é˜²å’Œå·¨åçš„æ‰€æœ‰ä¸œè¥¿ï¼ŒåŒ…æ‹¬å°é±¼",
+                    counters: ["reload", "singleGun", "doubleGun", "normalShield", "wave", "waveShield", "singleReflect", "landmine", "smallFish"]
+                },
+                nukeShield: {
+                    name: "æ ¸é˜²",
+                    cost: 0,
+                    description: "å¯ä»¥é˜²å¾¡æ ¸å¼¹å’Œåœ°é›·ï¼Œä¸éœ€è¦å­å¼¹",
+                    counters: ["nuke", "landmine"]
+                }
+            }
+        };
+
+        // DOMå…ƒç´ 
+        const screens = {
+            login: document.getElementById('login-screen'),
+            register: document.getElementById('register-screen'),
+            rules: document.getElementById('rules-screen'),
+            menu: document.getElementById('menu-screen'),
+            difficulty: document.getElementById('difficulty-screen'),
+            multiplayer: document.getElementById('multiplayer-screen'),
+            game: document.getElementById('game-screen'),
+            gameOver: document.getElementById('game-over-screen'),
+            room: document.getElementById('room-screen')
+        };
+
+        // æ˜¾ç¤ºé€šçŸ¥
+        function showNotification(title, message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const notificationTitle = document.getElementById('notification-title');
+            const notificationMessage = document.getElementById('notification-message');
+            const notificationIcon = document.getElementById('notification-icon');
+            
+            notificationTitle.textContent = title;
+            notificationMessage.textContent = message;
+            
+            // è®¾ç½®å›¾æ ‡å’Œé¢œè‰²
+            let iconClass = 'fa-info-circle text-blue-400';
+            if (type === 'success') {
+                iconClass = 'fa-check-circle text-green-400';
+            } else if (type === 'error') {
+                iconClass = 'fa-exclamation-circle text-red-400';
+            } else if (type === 'warning') {
+                iconClass = 'fa-exclamation-triangle text-yellow-400';
+            }
+            
+            notificationIcon.innerHTML = `<i class="fa ${iconClass}"></i>`;
+            
+            // æ˜¾ç¤ºé€šçŸ¥
+            notification.classList.remove('translate-y-20', 'opacity-0');
+            
+            // 3ç§’åè‡ªåŠ¨éšè—
+            setTimeout(() => {
+                hideNotification();
+            }, 3000);
+        }
+
+        // éšè—é€šçŸ¥
+        function hideNotification() {
+            const notification = document.getElementById('notification');
+            notification.classList.add('translate-y-20', 'opacity-0');
+        }
+
+        // æ˜¾ç¤ºå±€åŸŸç½‘å¯¹æˆ˜ç•Œé¢
+        function showLanBattleScreen() {
+            // æ¨¡æ‹Ÿè·å–æœ¬åœ°IPåœ°å€
+            const localIP = '192.168.1.' + Math.floor(Math.random() * 254) + 1;
+            document.getElementById('local-ip').textContent = localIP;
+            
+            showScreen('lan-battle-screen');
+        }
+
+        // åˆ‡æ¢å±å¹•
+        function showScreen(screenId) {
+            Object.values(screens).forEach(screen => {
+                screen.classList.add('hidden');
+                screen.classList.remove('active');
+            });
+            
+            const screen = screens[screenId];
+            screen.classList.remove('hidden');
+            screen.classList.add('active');
+            
+            // å¦‚æœæ˜¯ä¸»èœå•ï¼Œæ›´æ–°æ’è¡Œæ¦œ
+            if (screenId === 'menu') {
+                updateLeaderboard();
+            }
+        }
+
+        // æ›´æ–°ç§¯åˆ†æ’è¡Œæ¦œ
+        function updateLeaderboard() {
+            const leaderboardBody = document.getElementById('leaderboard-body');
+            leaderboardBody.innerHTML = '';
+            
+            // å°†ç”¨æˆ·è½¬æ¢ä¸ºæ•°ç»„å¹¶æŒ‰ç§¯åˆ†æ’åº
+            const sortedUsers = Object.values(gameData.users)
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 10); // åªæ˜¾ç¤ºå‰10å
+            
+            // å¦‚æœæ²¡æœ‰ç”¨æˆ·æ•°æ®
+            if (sortedUsers.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="3" class="py-4 text-center">æš‚æ— ç©å®¶æ•°æ®</td>
+                `;
+                leaderboardBody.appendChild(row);
+                return;
+            }
+            
+            // ç”Ÿæˆæ’è¡Œæ¦œæ¡ç›®
+            sortedUsers.forEach((user, index) => {
+                const row = document.createElement('tr');
+                row.className = `leaderboard-item ${user.username === gameData.currentUser?.username ? 'current-user' : ''}`;
+                
+                // å‰ä¸‰åæ·»åŠ ç‰¹æ®Šæ ·å¼
+                let rankClass = '';
+                let rankIcon = '';
+                
+                if (index === 0) {
+                    rankClass = 'text-yellow-400 font-bold';
+                    rankIcon = '<i class="fa fa-trophy mr-1"></i>';
+                } else if (index === 1) {
+                    rankClass = 'text-gray-300 font-bold';
+                    rankIcon = '<i class="fa fa-trophy mr-1"></i>';
+                } else if (index === 2) {
+                    rankClass = 'text-yellow-700 font-bold';
+                    rankIcon = '<i class="fa fa-trophy mr-1"></i>';
+                }
+                
+                row.innerHTML = `
+                    <td class="py-2 px-1 ${rankClass}">${rankIcon}${index + 1}</td>
+                    <td class="py-2 px-1">${user.username}</td>
+                    <td class="py-2 px-1 text-right font-medium">${user.score}</td>
+                `;
+                
+                leaderboardBody.appendChild(row);
+            });
+        }
+
+        // æ›´æ–°æ¸¸æˆçŠ¶æ€æ˜¾ç¤º
+        function updateGameStateDisplay() {
+            // æ›´æ–°å›åˆæ•°
+            document.getElementById('round-counter').textContent = gameData.gameState.currentRound;
+            
+            // æ›´æ–°å­å¼¹æ•°
+            document.getElementById('player-bullets').textContent = gameData.gameState.playerBullets;
+            document.getElementById('opponent-bullets').textContent = gameData.gameState.opponentBullets;
+            
+            // æ›´æ–°ç‰¹æ®Šæ‹›å¼æ¬¡æ•°
+            document.getElementById('player-single-reflect').textContent = gameData.gameState.playerSpecialMoves.singleReflect;
+            document.getElementById('player-mega-reflect').textContent = gameData.gameState.playerSpecialMoves.megaReflect;
+            document.getElementById('player-landmine').textContent = gameData.gameState.playerSpecialMoves.landmine;
+            document.getElementById('player-small-fish').textContent = gameData.gameState.playerSpecialMoves.smallFish;
+            
+            document.getElementById('opponent-single-reflect').textContent = gameData.gameState.opponentSpecialMoves.singleReflect;
+            document.getElementById('opponent-mega-reflect').textContent = gameData.gameState.opponentSpecialMoves.megaReflect;
+            document.getElementById('opponent-landmine').textContent = gameData.gameState.opponentSpecialMoves.landmine;
+            document.getElementById('opponent-small-fish').textContent = gameData.gameState.opponentSpecialMoves.smallFish;
+            
+            // æ›´æ–°æ‹›å¼æŒ‰é’®æ˜¾ç¤º
+            document.getElementById('single-reflect-count').textContent = gameData.gameState.playerSpecialMoves.singleReflect;
+            document.getElementById('mega-reflect-count').textContent = gameData.gameState.playerSpecialMoves.megaReflect;
+            document.getElementById('landmine-count').textContent = gameData.gameState.playerSpecialMoves.landmine;
+            document.getElementById('small-fish-count').textContent = gameData.gameState.playerSpecialMoves.smallFish;
+            
+            // æ›´æ–°æ‹›å¼æŒ‰é’®çŠ¶æ€
+            updateMoveButtonsState();
+        }
+
+        // æ›´æ–°æ‹›å¼æŒ‰é’®çŠ¶æ€
+        function updateMoveButtonsState() {
+            const moveCards = document.querySelectorAll('.move-card');
+            
+            moveCards.forEach(card => {
+                const moveId = card.dataset.move;
+                const move = gameData.moves[moveId];
+                
+                // é‡ç½®çŠ¶æ€
+                card.classList.remove('disabled');
+                
+                // æ£€æŸ¥å­å¼¹æ˜¯å¦è¶³å¤Ÿ
+                if (move.cost > gameData.gameState.playerBullets) {
+                    card.classList.add('disabled');
+                }
+                
+                // æ£€æŸ¥ç‰¹æ®Šæ‹›å¼ä½¿ç”¨æ¬¡æ•°
+                if (moveId === 'singleReflect' && gameData.gameState.playerSpecialMoves.singleReflect <= 0) {
+                    card.classList.add('disabled');
+                }
+                
+                if (moveId === 'megaReflect') {
+                    if (gameData.gameState.playerSpecialMoves.megaReflect <= 0 || gameData.gameState.currentRound < 4) {
+                        card.classList.add('disabled');
+                    }
+                }
+                
+                if (moveId === 'landmine') {
+                    if (gameData.gameState.playerSpecialMoves.landmine <= 0 || gameData.gameState.currentRound < 4) {
+                        card.classList.add('disabled');
+                    }
+                }
+                
+                if (moveId === 'smallFish' && gameData.gameState.playerSpecialMoves.smallFish <= 0) {
+                    card.classList.add('disabled');
+                }
+                
+                // æ£€æŸ¥æ˜¯å¦å¯ä»¥è¿å‡ºå•åæˆ–åœ°é›·
+                if ((moveId === 'singleReflect' || moveId === 'landmine') && gameData.gameState.lastPlayerMove === moveId) {
+                    card.classList.add('disabled');
+                }
+                
+                // å¦‚æœä¸æ˜¯ç©å®¶å›åˆï¼Œç¦ç”¨æ‰€æœ‰æŒ‰é’®
+                if (!gameData.gameState.isPlayerTurn) {
+                    card.classList.add('disabled');
+                }
+            });
+        }
+
+        // å¤„ç†ç©å®¶é€‰æ‹©æ‹›å¼
+        function handlePlayerMove(moveId) {
+            if (!gameData.gameState.isPlayerTurn || gameData.gameState.isGameOver) {
+                return;
+            }
+            
+            const move = gameData.moves[moveId];
+            const moveCard = document.querySelector(`[data-move="${moveId}"]`);
+            
+            // æ£€æŸ¥æ˜¯å¦å¯ä»¥ä½¿ç”¨è¯¥æ‹›å¼
+            if (moveCard.classList.contains('disabled')) {
+                showNotification('æ— æ³•ä½¿ç”¨', 'ä½ ä¸èƒ½ä½¿ç”¨è¿™ä¸ªæ‹›å¼', 'error');
+                return;
+            }
+            
+            // æ‰£é™¤å­å¼¹
+            gameData.gameState.playerBullets -= move.cost;
+            
+            // å¤„ç†ç‰¹æ®Šæ‹›å¼ä½¿ç”¨æ¬¡æ•°
+            if (moveId === 'singleReflect') {
+                gameData.gameState.playerSpecialMoves.singleReflect--;
+            } else if (moveId === 'megaReflect') {
+                gameData.gameState.playerSpecialMoves.megaReflect--;
+            } else if (moveId === 'landmine') {
+                gameData.gameState.playerSpecialMoves.landmine--;
+            } else if (moveId === 'smallFish') {
+                gameData.gameState.playerSpecialMoves.smallFish--;
+            }
+            
+            // è®°å½•ç©å®¶çš„æœ€åä¸€æ‹›
+            gameData.gameState.lastPlayerMove = moveId;
+            
+            // æ˜¾ç¤ºç©å®¶é€‰æ‹©çš„æ‹›å¼
+            document.getElementById('player-move').textContent = move.name;
+            document.getElementById('player-move').classList.remove('hidden');
+            document.getElementById('player-select').classList.add('hidden');
+            
+            // åˆ‡æ¢åˆ°å¯¹æ‰‹å›åˆ
+            gameData.gameState.isPlayerTurn = false;
+            
+            // æ›´æ–°æ¸¸æˆçŠ¶æ€æ˜¾ç¤º
+            updateGameStateDisplay();
+            
+            // å»¶è¿Ÿæ˜¾ç¤ºå¯¹æ‰‹æ‹›å¼
+            setTimeout(() => {
+                const opponentMove = getOpponentMove();
+                handleRoundResult(moveId, opponentMove);
+            }, 1500);
+        }
+
+        // è·å–å¯¹æ‰‹æ‹›å¼ï¼ˆAIæˆ–æ¨¡æ‹ŸçœŸå®ç©å®¶ï¼‰
+        function getOpponentMove() {
+            const availableMoves = [];
+            
+            // éå†æ‰€æœ‰æ‹›å¼
+            Object.keys(gameData.moves).forEach(moveId => {
+                const move = gameData.moves[moveId];
+                let canUse = true;
+                
+                // æ£€æŸ¥å­å¼¹æ˜¯å¦è¶³å¤Ÿ
+                if (move.cost > gameData.gameState.opponentBullets) {
+                    canUse = false;
+                }
+                
+                // æ£€æŸ¥ç‰¹æ®Šæ‹›å¼ä½¿ç”¨æ¬¡æ•°
+                if (moveId === 'singleReflect' && gameData.gameState.opponentSpecialMoves.singleReflect <= 0) {
+                    canUse = false;
+                }
+                
+                if (moveId === 'megaReflect') {
+                    if (gameData.gameState.opponentSpecialMoves.megaReflect <= 0 || gameData.gameState.currentRound < 4) {
+                        canUse = false;
+                    }
+                }
+                
+                if (moveId === 'landmine') {
+                    if (gameData.gameState.opponentSpecialMoves.landmine <= 0 || gameData.gameState.currentRound < 4) {
+                        canUse = false;
+                    }
+                }
+                
+                if (moveId === 'smallFish' && gameData.gameState.opponentSpecialMoves.smallFish <= 0) {
+                    canUse = false;
+                }
+                
+                // æ£€æŸ¥æ˜¯å¦å¯ä»¥è¿å‡ºå•åæˆ–åœ°é›·
+                if ((moveId === 'singleReflect' || moveId === 'landmine') && gameData.gameState.lastOpponentMove === moveId) {
+                    canUse = false;
+                }
+                
+                if (canUse) {
+                    availableMoves.push(moveId);
+                }
+            });
+            
+            // æ ¹æ®æ¸¸æˆæ¨¡å¼é€‰æ‹©æ‹›å¼
+            let selectedMove;
+            
+            if (gameData.gameState.gameMode === 'single' || gameData.gameState.gameMode === 'practice') {
+                // å•äººåŒ¹é…æ¨¡å¼å’Œç»ƒä¹ æ¨¡å¼ï¼šä½¿ç”¨åŸºäºéš¾åº¦çš„AI
+                selectedMove = getDifficultyBasedAI(availableMoves);
+            } else {
+                // ç»ƒä¹ æ¨¡å¼ï¼šæ ¹æ®éš¾åº¦é€‰æ‹©
+                if (gameData.gameState.difficulty === 'easy') {
+                    // ç®€å•æ¨¡å¼ï¼šéšæœºé€‰æ‹©
+                    selectedMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+                } else if (gameData.gameState.difficulty === 'normal') {
+                    // æ™®é€šæ¨¡å¼ï¼šæœ‰ä¸€å®šç­–ç•¥
+                    const strategyChance = Math.random();
+                    
+                    if (strategyChance < 0.7) {
+                        // 70% æ¦‚ç‡ä½¿ç”¨ç­–ç•¥
+                        selectedMove = getStrategicMove(availableMoves, 'normal');
+                    } else {
+                        // 30% æ¦‚ç‡éšæœºé€‰æ‹©
+                        selectedMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+                    }
+                } else {
+                    // å›°éš¾æ¨¡å¼ï¼šé«˜çº§ç­–ç•¥
+                    const strategyChance = Math.random();
+                    
+                    if (strategyChance < 0.9) {
+                        // 90% æ¦‚ç‡ä½¿ç”¨ç­–ç•¥
+                        selectedMove = getStrategicMove(availableMoves, 'hard');
+                    } else {
+                        // 10% æ¦‚ç‡éšæœºé€‰æ‹©
+                        selectedMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+                    }
+                }
+            }
+            
+            return selectedMove;
         }
         
-        // ¼ì²é×Óµ¯ÊÇ·ñ×ã¹»
-        if (moveRelations[move].cost && gameState.playerBullets < moveRelations[move].cost) {
-          showNotification('×Óµ¯²»×ã');
-          return;
+        // åŸºäºéš¾åº¦çš„AIï¼Œç”¨äºå•äººæ¨¡å¼å’Œç»ƒä¹ æ¨¡å¼
+        function getDifficultyBasedAI(availableMoves) {
+            // è·å–å½“å‰éš¾åº¦
+            let aiDifficulty = gameData.gameState.difficulty;
+            
+            // å•äººæ¨¡å¼ä¸‹ï¼Œæ ¹æ®ç©å®¶ç§¯åˆ†è°ƒæ•´éš¾åº¦
+            if (gameData.gameState.gameMode === 'single') {
+                const playerScore = gameData.currentUser ? gameData.currentUser.score : 0;
+                
+                if (playerScore < 10) {
+                    aiDifficulty = 'easy';
+                } else if (playerScore < 30) {
+                    aiDifficulty = 'normal';
+                } else if (playerScore < 60) {
+                    aiDifficulty = 'hard';
+                } else {
+                    aiDifficulty = 'expert'; // ä¸“å®¶éš¾åº¦ï¼Œæ¯”å›°éš¾æ›´éš¾
+                }
+            }
+            
+            // æ ¹æ®éš¾åº¦é€‰æ‹©ç­–ç•¥
+            const randomChance = Math.random();
+            let selectedMove;
+            
+            if (aiDifficulty === 'easy') {
+                // ç®€å•AIï¼šä¸»è¦éšæœºé€‰æ‹©
+                if (randomChance < 0.5) {
+                    selectedMove = getStrategicMove(availableMoves, 'normal');
+                } else {
+                    selectedMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+                }
+            } else if (aiDifficulty === 'normal') {
+                // æ™®é€šAIï¼šä¸­ç­‰ç­–ç•¥
+                if (randomChance < 0.8) {
+                    selectedMove = getStrategicMove(availableMoves, 'normal');
+                } else {
+                    selectedMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+                }
+            } else if (aiDifficulty === 'hard') {
+                // å›°éš¾AIï¼šé«˜ç­–ç•¥æ€§
+                if (randomChance < 0.95) {
+                    selectedMove = getStrategicMove(availableMoves, 'hard');
+                } else {
+                    selectedMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+                }
+            } else {
+                // ä¸“å®¶AIï¼šæé«˜ç­–ç•¥æ€§ï¼Œä½¿ç”¨è±†åŒ…AI
+                if (randomChance < 0.98) {
+                    selectedMove = getDoubaoAIMove(availableMoves);
+                } else {
+                    selectedMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+                }
+            }
+            
+            return selectedMove;
         }
-        
-        // ¼ì²éÊÇ·ñÂú×ã»ØºÏÏŞÖÆ
-        if (moveRelations[move].roundLimit && gameState.round < moveRelations[move].roundLimit) {
-          showNotification(`¸ÃÕĞÊ½ĞèÒªÔÚµÚ${moveRelations[move].roundLimit}»ØºÏºóÊ¹ÓÃ`);
-          return;
+
+        // å•äººæ¨¡å¼ä¸“ç”¨AIï¼ŒåŸºäºç©å®¶ç§¯åˆ†è°ƒæ•´éš¾åº¦
+        function getSinglePlayerAI(availableMoves) {
+            // è·å–ç©å®¶ç§¯åˆ†
+            const playerScore = gameData.currentUser ? gameData.currentUser.score : 0;
+            
+            // æ ¹æ®ç©å®¶ç§¯åˆ†ç¡®å®šAIéš¾åº¦
+            let aiDifficulty;
+            if (playerScore < 10) {
+                aiDifficulty = 'easy';
+            } else if (playerScore < 30) {
+                aiDifficulty = 'normal';
+            } else if (playerScore < 60) {
+                aiDifficulty = 'hard';
+            } else {
+                aiDifficulty = 'expert'; // ä¸“å®¶éš¾åº¦ï¼Œæ¯”å›°éš¾æ›´éš¾
+            }
+            
+            // æ ¹æ®éš¾åº¦é€‰æ‹©ç­–ç•¥
+            const randomChance = Math.random();
+            let selectedMove;
+            
+            if (aiDifficulty === 'easy') {
+                // ç®€å•AIï¼šä¸»è¦éšæœºé€‰æ‹©
+                if (randomChance < 0.5) {
+                    selectedMove = getStrategicMove(availableMoves, 'normal');
+                } else {
+                    selectedMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+                }
+            } else if (aiDifficulty === 'normal') {
+                // æ™®é€šAIï¼šä¸­ç­‰ç­–ç•¥
+                if (randomChance < 0.8) {
+                    selectedMove = getStrategicMove(availableMoves, 'normal');
+                } else {
+                    selectedMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+                }
+            } else if (aiDifficulty === 'hard') {
+                // å›°éš¾AIï¼šé«˜ç­–ç•¥æ€§
+                if (randomChance < 0.95) {
+                    selectedMove = getStrategicMove(availableMoves, 'hard');
+                } else {
+                    selectedMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+                }
+            } else {
+                // ä¸“å®¶AIï¼šæé«˜ç­–ç•¥æ€§ï¼Œä½¿ç”¨è±†åŒ…AI
+                if (randomChance < 0.98) {
+                    selectedMove = getDoubaoAIMove(availableMoves);
+                } else {
+                    selectedMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+                }
+            }
+            
+            return selectedMove;
         }
-        
-        // ¼ÇÂ¼Íæ¼ÒÑ¡ÔñµÄÕĞÊ½
-        gameState.currentMove = move;
-        elements.playerMove.innerHTML = moveImages[move];
-        elements.playerMove.classList.remove('hidden');
-        
-        // ÏûºÄ×Óµ¯
-        if (moveRelations[move].cost) {
-          gameState.playerBullets -= moveRelations[move].cost;
-          updateBulletDisplay();
+
+        // è·å–ç­–ç•¥æ€§æ‹›å¼
+        function getStrategicMove(availableMoves, difficulty) {
+            // å›°éš¾æ¨¡å¼ä¸‹ä½¿ç”¨å¼ºåŠ›AIï¼šè±†åŒ…AI
+            if (difficulty === 'hard') {
+                return getDoubaoAIMove(availableMoves);
+            }
+
+            // åŸºäºå½“å‰æ¸¸æˆçŠ¶æ€é€‰æ‹©æœ€ä¼˜æ‹›å¼
+            const playerBullets = gameData.gameState.playerBullets;
+            const opponentBullets = gameData.gameState.opponentBullets;
+            const currentRound = gameData.gameState.currentRound;
+            
+            // ä¼˜å…ˆä¸Šå¼¹
+            if (opponentBullets < 3 && availableMoves.includes('reload')) {
+                return 'reload';
+            }
+            
+            // å¦‚æœæœ‰è¶³å¤Ÿå­å¼¹ï¼Œå°è¯•ä½¿ç”¨å¼ºåŠ›æ‹›å¼
+            if (opponentBullets >= 5 && availableMoves.includes('nuke')) {
+                return 'nuke';
+            }
+            
+            if (opponentBullets >= 3 && availableMoves.includes('wave')) {
+                return 'wave';
+            }
+            
+            if (opponentBullets >= 2 && availableMoves.includes('doubleGun')) {
+                return 'doubleGun';
+            }
+            
+            if (opponentBullets >= 1 && availableMoves.includes('singleGun')) {
+                return 'singleGun';
+            }
+            
+            // å¦‚æœç©å®¶æœ‰å¾ˆå¤šå­å¼¹ï¼Œè€ƒè™‘é˜²å¾¡
+            if (playerBullets >= 3) {
+                if (availableMoves.includes('waveShield')) return 'waveShield';
+                if (availableMoves.includes('normalShield')) return 'normalShield';
+                if (availableMoves.includes('nukeShield')) return 'nukeShield';
+            }
+            
+            // ç¬¬4å›åˆåè€ƒè™‘ä½¿ç”¨ç‰¹æ®Šæ‹›å¼
+            if (currentRound >= 4) {
+                if (availableMoves.includes('landmine') && gameData.gameState.opponentSpecialMoves.landmine > 0) {
+                    return 'landmine';
+                }
+                
+                if (availableMoves.includes('megaReflect') && gameData.gameState.opponentSpecialMoves.megaReflect > 0) {
+                    return 'megaReflect';
+                }
+            }
+            
+            // å¦‚æœç©å®¶æ²¡æœ‰å­å¼¹ï¼Œè€ƒè™‘ä½¿ç”¨å°é±¼
+            if (playerBullets > 0 && availableMoves.includes('smallFish') && gameData.gameState.opponentSpecialMoves.smallFish > 0) {
+                return 'smallFish';
+            }
+            
+            // æœ€åéšæœºé€‰æ‹©
+            return availableMoves[Math.floor(Math.random() * availableMoves.length)];
         }
-        
-        // ÏûºÄÓĞÏŞÖÆµÄÕĞÊ½
-        if (moveRelations[move].limit) {
-          if (move === 'counterattack') {
-            gameState.playerMoves.counterattack--;
-          } else if (move === 'mega_counterattack') {
-            gameState.playerMoves.megaCounterattack--;
-          } else if (move === 'mine') {
-            gameState.playerMoves.mine--;
-          } else if (move === 'fish') {
-            gameState.playerMoves.fish--;
-          }
-          updateMoveLimits();
+
+        // è±†åŒ…AIï¼šå¼ºåŠ›AIï¼Œç”¨äºå›°éš¾æ¨¡å¼
+        function getDoubaoAIMove(availableMoves) {
+            const playerBullets = gameData.gameState.playerBullets;
+            const opponentBullets = gameData.gameState.opponentBullets;
+            const currentRound = gameData.gameState.currentRound;
+            const lastPlayerMove = gameData.gameState.lastPlayerMove;
+            const gameHistory = gameData.gameState.roundHistory || [];
+
+            // åˆ†æç©å®¶è¡Œä¸ºæ¨¡å¼
+            const playerPattern = analyzePlayerPattern(gameHistory);
+
+            // 1. é˜²å¾¡ä¼˜å…ˆç­–ç•¥ï¼šé¢„æµ‹å¹¶é˜²å¾¡ç©å®¶çš„æ”»å‡»
+            if (playerPattern.likelyNextMove) {
+                const counterMove = getCounterMove(playerPattern.likelyNextMove, availableMoves);
+                if (counterMove) {
+                    return counterMove;
+                }
+            }
+
+            // 2. èµ„æºç®¡ç†ï¼šä¿æŒå­å¼¹ä¼˜åŠ¿
+            if (opponentBullets < playerBullets - 1 && availableMoves.includes('reload')) {
+                return 'reload';
+            }
+
+            // 3. å¼ºåŠ›æ”»å‡»ï¼šåœ¨ä¼˜åŠ¿æ—¶æœæ–­å‡ºå‡»
+            if (opponentBullets >= 5 && availableMoves.includes('nuke')) {
+                // å¦‚æœç©å®¶å¯èƒ½é˜²å¾¡æ ¸å¼¹ï¼Œå°±ä¸ç”¨
+                if (!playerPattern.mightUseNukeShield) {
+                    return 'nuke';
+                }
+            }
+
+            if (opponentBullets >= 3 && availableMoves.includes('wave')) {
+                // å¦‚æœç©å®¶å¯èƒ½é˜²å¾¡æ³¢ï¼Œå°±ä¸ç”¨
+                if (!playerPattern.mightUseWaveShield) {
+                    return 'wave';
+                }
+            }
+
+            // 4. ç‰¹æ®Šæ‹›å¼æ—¶æœºæŠŠæ¡
+            if (currentRound >= 4) {
+                // åœ°é›·ï¼šåœ¨ç©å®¶å¯èƒ½ä¸Šå¼¹æˆ–æ”»å‡»æ—¶ä½¿ç”¨
+                if (availableMoves.includes('landmine') && gameData.gameState.opponentSpecialMoves.landmine > 0) {
+                    if (playerPattern.likelyNextMove === 'reload' || ['singleGun', 'doubleGun', 'wave'].includes(playerPattern.likelyNextMove)) {
+                        return 'landmine';
+                    }
+                }
+
+                // å·¨åï¼šåœ¨ç©å®¶å¯èƒ½ä½¿ç”¨å¼ºåŠ›æ”»å‡»æ—¶ä½¿ç”¨
+                if (availableMoves.includes('megaReflect') && gameData.gameState.opponentSpecialMoves.megaReflect > 0) {
+                    if (playerBullets >= 3) {
+                        return 'megaReflect';
+                    }
+                }
+            }
+
+            // 5. å°é±¼ï¼šåœ¨ç©å®¶å­å¼¹å¤šæ—¶ä½¿ç”¨
+            if (playerBullets >= 3 && availableMoves.includes('smallFish') && gameData.gameState.opponentSpecialMoves.smallFish > 0) {
+                return 'smallFish';
+            }
+
+            // 6. ç²¾å‡†é˜²å¾¡
+            if (playerBullets >= 1) {
+                if (playerPattern.likelyNextMove === 'singleGun' && availableMoves.includes('normalShield')) {
+                    return 'normalShield';
+                }
+                if (playerPattern.likelyNextMove === 'doubleGun' && availableMoves.includes('normalShield')) {
+                    return 'normalShield';
+                }
+                if (playerPattern.likelyNextMove === 'wave' && availableMoves.includes('waveShield')) {
+                    return 'waveShield';
+                }
+                if (playerPattern.likelyNextMove === 'nuke' && availableMoves.includes('nukeShield')) {
+                    return 'nukeShield';
+                }
+            }
+
+            // 7. å•åï¼šåœ¨ç©å®¶å¯èƒ½ä½¿ç”¨å•æª/åŒæªæ—¶ä½¿ç”¨
+            if (availableMoves.includes('singleReflect') && gameData.gameState.opponentSpecialMoves.singleReflect > 0) {
+                if (['singleGun', 'doubleGun'].includes(playerPattern.likelyNextMove)) {
+                    return 'singleReflect';
+                }
+            }
+
+            // 8.  fallbackç­–ç•¥ï¼šéšæœºä½†åŠ æƒ
+            const weightedMoves = [];
+            availableMoves.forEach(move => {
+                let weight = 1;
+                if (move === 'reload' && opponentBullets < 3) weight = 3;
+                if (move === 'singleGun' && opponentBullets >= 1) weight = 2;
+                if (move === 'doubleGun' && opponentBullets >= 2) weight = 2;
+                if (move === 'wave' && opponentBullets >= 3) weight = 2;
+                for (let i = 0; i < weight; i++) {
+                    weightedMoves.push(move);
+                }
+            });
+            return weightedMoves[Math.floor(Math.random() * weightedMoves.length)];
         }
-        
-        // ½ûÓÃËùÓĞÕĞÊ½°´Å¥
-        disableAllMoveButtons();
-        
-        // Ä£Äâ¶ÔÊÖÑ¡ÔñÕĞÊ½
-        setTimeout(() => {
-          selectOpponentMove();
-          determineDamage();
-        }, 1000);
-      });
-    });
-    
-    // ³õÊ¼»¯ÓÎÏ·
-    function initGame() {
-      createBubbles();
-      updateMoveLimits();
-      updateBulletDisplay();
-      updateRoundDisplay();
-      updateHealthDisplay();
-    }
-    
-    // ¿ªÊ¼ÓÎÏ·
-    function startGame(mode) {
-      gameState.gameMode = mode;
-      elements.mainMenu.classList.add('hidden');
-      elements.gameScreen.classList.remove('hidden');
-      gameState.gameActive = true;
-      initGame();
-    }
-    
-    // ÖØÖÃÓÎÏ·
-    function resetGame() {
-      gameState.round = 1;
-      gameState.playerBullets = 0;
-      gameState.opponentBullets = 0;
-      gameState.playerHealth = 100;
-      gameState.opponentHealth = 100;
-      gameState.playerMoves = {
-        counterattack: 2,
-        megaCounterattack: 1,
-        mine: 2,
-        fish: 1
-      };
-      gameState.opponentMoves = {
-        counterattack: 2,
-        megaCounterattack: 1,
-        mine: 2,
-        fish: 1
-      };
-      gameState.currentMove = null;
-      gameState.opponentMove = null;
-      gameState.gameActive = false;
-      
-      elements.playerMove.classList.add('hidden');
-      elements.opponentMove.classList.add('hidden');
-      elements.battleResult.classList.add('hidden');
-      elements.gameOver.classList.add('hidden');
-      elements.movesContainer.classList.remove('hidden');
-      
-      updateMoveLimits();
-      updateBulletDisplay();
-      updateRoundDisplay();
-      updateHealthDisplay();
-      enableAllMoveButtons();
-    }
-    
-    // ÏÂÒ»ÂÖ
-    function nextRound() {
-      gameState.round++;
-      gameState.currentMove = null;
-      gameState.opponentMove = null;
-      
-      elements.playerMove.classList.add('hidden');
-      elements.opponentMove.classList.add('hidden');
-      
-      updateRoundDisplay();
-      enableAllMoveButtons();
-      
-      // ¼ì²éÊÇ·ñÂú×ã¾Ş·´ºÍµØÀ×µÄÊ¹ÓÃÌõ¼ş
-      if (gameState.round >= 4) {
-        document.querySelector('[data-move="mega_counterattack"]').disabled = false;
-        document.querySelector('[data-move="mine"]').disabled = false;
-      }
-    }
-    
-    // ½áÊøÓÎÏ·
-    function endGame(winner) {
-      gameState.gameActive = false;
-      
-      let title, message;
-      if (winner === 'player') {
-        title = '¹§Ï²Ê¤Àû£¡';
-        message = 'Äã³É¹¦»÷°ÜÁË¶ÔÊÖ£¡';
-      } else if (winner === 'opponent') {
-        title = 'ÓÎÏ·½áÊø';
-        message = 'Äã±»¶ÔÊÖ»÷°ÜÁË£¡';
-      }
-      
-      elements.gameOverTitle.textContent = title;
-      elements.gameOverMessage.textContent = message;
-      elements.gameOver.classList.remove('hidden');
-      elements.movesContainer.classList.add('hidden');
-      elements.battleResult.classList.add('hidden');
-    }
-    
-    // Ñ¡Ôñ¶ÔÊÖÕĞÊ½
-    function selectOpponentMove() {
-      // ¼òµ¥µÄAIÂß¼­
-      const availableMoves = [];
-      
-      // »ñÈ¡¶ÔÊÖ¿ÉÓÃµÄÕĞÊ½
-      for (const move in moveRelations) {
-        if (isOpponentMoveAvailable(move)) {
-          availableMoves.push(move);
+
+        // åˆ†æç©å®¶è¡Œä¸ºæ¨¡å¼
+        function analyzePlayerPattern(history) {
+            if (history.length < 2) {
+                return { likelyNextMove: null, mightUseNukeShield: false, mightUseWaveShield: false };
+            }
+
+            const lastRound = history[history.length - 1];
+            const secondLastRound = history[history.length - 2];
+            const playerMoves = history.map(r => r.playerMove);
+            const playerBulletsHistory = history.map(r => r.playerBullets);
+
+            // ç®€å•çš„æ¨¡å¼è¯†åˆ«
+            let likelyNextMove = null;
+            let mightUseNukeShield = false;
+            let mightUseWaveShield = false;
+
+            // å¦‚æœç©å®¶åˆšä¸Šå¼¹ï¼Œå¾ˆå¯èƒ½ä¸‹ä¸€æ­¥æ”»å‡»
+            if (lastRound.playerMove === 'reload') {
+                if (lastRound.playerBullets >= 1) likelyNextMove = 'singleGun';
+                if (lastRound.playerBullets >= 2) likelyNextMove = 'doubleGun';
+                if (lastRound.playerBullets >= 3) likelyNextMove = 'wave';
+            }
+
+            // å¦‚æœç©å®¶è¿ç»­ä½¿ç”¨æŸç§æ”»å‡»ï¼Œå¯èƒ½ç»§ç»­
+            const lastTwoMoves = playerMoves.slice(-2);
+            if (lastTwoMoves[0] === lastTwoMoves[1] && lastTwoMoves[0] !== 'reload') {
+                likelyNextMove = lastTwoMoves[0];
+            }
+
+            // åˆ¤æ–­ç©å®¶æ˜¯å¦å¯èƒ½ä½¿ç”¨é˜²å¾¡
+            const recentPlayerBullets = playerBulletsHistory.slice(-3);
+            if (recentPlayerBullets.some(b => b >= 5)) {
+                mightUseNukeShield = true;
+            }
+            if (recentPlayerBullets.some(b => b >= 3)) {
+                mightUseWaveShield = true;
+            }
+
+            return { likelyNextMove, mightUseNukeShield, mightUseWaveShield };
         }
-      }
-      
-      // ÈÃAI¸üÖÇÄÜÒ»Ğ©£ºÈç¹ûÉúÃüÖµµÍ£¬¸ü¿ÉÄÜÊ¹ÓÃÇ¿Á¦ÕĞÊ½
-      let weightedMoves = [];
-      if (gameState.opponentHealth < 30) {
-        // ÉúÃüÖµµÍ£¬ÓÅÏÈÊ¹ÓÃ¸ßÉËº¦ÕĞÊ½
-        availableMoves.forEach(move => {
-          const weight = moveRelations[move].damage ? moveRelations[move].damage / 5 : 1;
-          for (let i = 0; i < weight; i++) {
-            weightedMoves.push(move);
-          }
-        });
-      } else {
-        weightedMoves = availableMoves;
-      }
-      
-      // Ëæ»úÑ¡ÔñÒ»¸öÕĞÊ½
-      const randomIndex = Math.floor(Math.random() * weightedMoves.length);
-      gameState.opponentMove = weightedMoves[randomIndex];
-      
-      // ÏÔÊ¾¶ÔÊÖÑ¡ÔñµÄÕĞÊ½
-      elements.opponentMove.innerHTML = moveImages[gameState.opponentMove];
-      elements.opponentMove.classList.remove('hidden');
-      
-      // ÏûºÄ¶ÔÊÖµÄ×Óµ¯
-      if (moveRelations[gameState.opponentMove].cost) {
-        gameState.opponentBullets -= moveRelations[gameState.opponentMove].cost;
-        updateBulletDisplay();
-      }
-      
-      // ÏûºÄ¶ÔÊÖÓĞÏŞÖÆµÄÕĞÊ½
-      if (moveRelations[gameState.opponentMove].limit) {
-        if (gameState.opponentMove === 'counterattack') {
-          gameState.opponentMoves.counterattack--;
-        } else if (gameState.opponentMove === 'mega_counterattack') {
-          gameState.opponentMoves.megaCounterattack--;
-        } else if (gameState.opponentMove === 'mine') {
-          gameState.opponentMoves.mine--;
-        } else if (gameState.opponentMove === 'fish') {
-          gameState.opponentMoves.fish--;
+
+        // è·å–é’ˆå¯¹ç‰¹å®šæ‹›å¼çš„ counter move
+        function getCounterMove(playerMove, availableMoves) {
+            const counters = {
+                'singleGun': ['normalShield', 'singleReflect'],
+                'doubleGun': ['normalShield', 'singleReflect'],
+                'wave': ['waveShield', 'normalShield'],
+                'nuke': ['nukeShield'],
+                'landmine': ['nukeShield'],
+                'smallFish': ['megaReflect'],
+                'reload': ['landmine']
+            };
+
+            if (counters[playerMove]) {
+                for (const counter of counters[playerMove]) {
+                    if (availableMoves.includes(counter)) {
+                        return counter;
+                    }
+                }
+            }
+            return null;
         }
-        updateMoveLimits();
-      }
-    }
-    
-    // ÅĞ¶¨ÉËº¦
-    function determineDamage() {
-      const playerMove = gameState.currentMove;
-      const opponentMove = gameState.opponentMove;
-      
-      // ¼ì²éÊÇ·ñÓĞ·´µ¯Ğ§¹û
-      let playerMoveReflected = false;
-      let opponentMoveReflected = false;
-      
-      // ¼ì²é¶ÔÊÖµÄ·´µ¯Ğ§¹û
-      if (opponentMove === 'counterattack' && 
-          (playerMove === 'single_shot' || playerMove === 'double_shot')) {
-        playerMoveReflected = true;
-        showNotification('¶ÔÊÖÊ¹ÓÃµ¥·´£¬·´µ¯ÁËÄãµÄ¹¥»÷£¡');
-      } else if (opponentMove === 'mega_counterattack') {
-        playerMoveReflected = true;
-        showNotification('¶ÔÊÖÊ¹ÓÃ¾Ş·´£¬·´µ¯ÁËÄãµÄËùÓĞ¹¥»÷£¡');
-      } else if (opponentMove === 'wave_defense' && playerMove === 'mine') {
-        playerMoveReflected = true;
-        showNotification('¶ÔÊÖÊ¹ÓÃ²¨·À£¬·´µ¯ÁËÄãµÄµØÀ×£¡');
-      }
-      
-      // ¼ì²éÍæ¼ÒµÄ·´µ¯Ğ§¹û
-      if (playerMove === 'counterattack' && 
-          (opponentMove === 'single_shot' || opponentMove === 'double_shot')) {
-        opponentMoveReflected = true;
-        showNotification('ÄãÊ¹ÓÃµ¥·´£¬·´µ¯ÁË¶ÔÊÖµÄ¹¥»÷£¡');
-      } else if (playerMove === 'mega_counterattack') {
-        opponentMoveReflected = true;
-        showNotification('ÄãÊ¹ÓÃ¾Ş·´£¬·´µ¯ÁË¶ÔÊÖµÄËùÓĞ¹¥»÷£¡');
-      } else if (playerMove === 'wave_defense' && opponentMove === 'mine') {
-        opponentMoveReflected = true;
-        showNotification('ÄãÊ¹ÓÃ²¨·À£¬·´µ¯ÁË¶ÔÊÖµÄµØÀ×£¡');
-      }
-      
-      // ´¦ÀíĞ¡ÓãÎüÈ¡Ğ§¹û
-      if (playerMove === 'fish') {
-        if (opponentMove === 'mega_counterattack') {
-          // Èç¹û¶ÔÊÖÊ¹ÓÃ¾Ş·´£¬Íæ¼ÒÎüÈ¡×Ô¼ºµÄ×Óµ¯
-          const stolenBullets = Math.floor(gameState.playerBullets / 2);
-          gameState.playerBullets -= stolenBullets;
-          showNotification(`Ğ¡Óã±»¾Ş·´£¬ÄãÊ§È¥ÁË${stolenBullets}¿Å×Óµ¯£¡`);
-        } else if (!playerMoveReflected) {
-          // ÎüÈ¡¶ÔÊÖµÄ×Óµ¯
-          const stolenBullets = Math.floor(gameState.opponentBullets / 2);
-          gameState.playerBullets += stolenBullets;
-          gameState.opponentBullets -= stolenBullets;
-          showNotification(`Ğ¡ÓãÎüÈ¡ÁË¶ÔÊÖ${stolenBullets}¿Å×Óµ¯£¡`);
+
+        // æ¨¡æ‹ŸçœŸå®ç©å®¶çš„è¡Œä¸º
+        function simulateRealPlayerMove(availableMoves) {
+            // åŸºäºå½“å‰æ¸¸æˆçŠ¶æ€æ¨¡æ‹ŸçœŸå®ç©å®¶çš„ç­–ç•¥
+            const playerBullets = gameData.gameState.playerBullets;
+            const opponentBullets = gameData.gameState.opponentBullets;
+            const currentRound = gameData.gameState.currentRound;
+            const lastPlayerMove = gameData.gameState.lastPlayerMove;
+            
+            // çœŸå®ç©å®¶ä¸ä¼šæ€»æ˜¯é€‰æ‹©æœ€ä¼˜ç­–ç•¥ï¼Œä¼šæœ‰ä¸€äº›éšæœºæ€§
+            const randomChance = Math.random();
+            
+            if (randomChance < 0.3) {
+                // 30% æ¦‚ç‡éšæœºé€‰æ‹©ï¼ˆæ¨¡æ‹Ÿç©å®¶çš„ä¸ç¡®å®šæ€§ï¼‰
+                return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+            }
+            
+            // 70% æ¦‚ç‡ä½¿ç”¨ç­–ç•¥æ€§å‡ºç‰Œ
+            
+            // è§‚å¯Ÿç©å®¶çš„è¡Œä¸ºæ¨¡å¼
+            if (lastPlayerMove === 'reload' && availableMoves.includes('singleGun')) {
+                // å¦‚æœç©å®¶åˆšä¸Šå¼¹ï¼Œæœ‰æ¦‚ç‡ç›´æ¥æ”»å‡»
+                if (Math.random() < 0.6) {
+                    return 'singleGun';
+                }
+            }
+            
+            // åŸºæœ¬ç­–ç•¥ï¼šä¿æŒå­å¼¹æ•°é‡
+            if (opponentBullets < 2 && availableMoves.includes('reload')) {
+                return 'reload';
+            }
+            
+            // æ”»å‡»ç­–ç•¥
+            if (opponentBullets >= 3 && availableMoves.includes('wave')) {
+                return 'wave';
+            }
+            
+            if (opponentBullets >= 2 && availableMoves.includes('doubleGun')) {
+                return 'doubleGun';
+            }
+            
+            if (opponentBullets >= 1 && availableMoves.includes('singleGun')) {
+                return 'singleGun';
+            }
+            
+            // é˜²å¾¡ç­–ç•¥
+            if (playerBullets >= 3) {
+                const shields = ['waveShield', 'normalShield', 'nukeShield'].filter(s => availableMoves.includes(s));
+                if (shields.length > 0) {
+                    return shields[Math.floor(Math.random() * shields.length)];
+                }
+            }
+            
+            // ç‰¹æ®Šæ‹›å¼ç­–ç•¥
+            if (currentRound >= 4) {
+                // æœ‰æ¦‚ç‡ä½¿ç”¨åœ°é›·
+                if (availableMoves.includes('landmine') && gameData.gameState.opponentSpecialMoves.landmine > 0 && Math.random() < 0.4) {
+                    return 'landmine';
+                }
+                
+                // æœ‰æ¦‚ç‡ä½¿ç”¨å·¨å
+                if (availableMoves.includes('megaReflect') && gameData.gameState.opponentSpecialMoves.megaReflect > 0 && Math.random() < 0.3) {
+                    return 'megaReflect';
+                }
+            }
+            
+            // å°é±¼ç­–ç•¥
+            if (playerBullets > 2 && availableMoves.includes('smallFish') && gameData.gameState.opponentSpecialMoves.smallFish > 0 && Math.random() < 0.5) {
+                return 'smallFish';
+            }
+            
+            // å•åç­–ç•¥
+            if (availableMoves.includes('singleReflect') && gameData.gameState.opponentSpecialMoves.singleReflect > 0 && Math.random() < 0.2) {
+                return 'singleReflect';
+            }
+            
+            // é»˜è®¤ç­–ç•¥
+            return availableMoves[Math.floor(Math.random() * availableMoves.length)];
         }
-        updateBulletDisplay();
-      }
-      
-      if (opponentMove === 'fish' && !playerMoveReflected) {
-        if (playerMove === 'mega_counterattack') {
-          // Èç¹ûÍæ¼ÒÊ¹ÓÃ¾Ş·´£¬¶ÔÊÖÎüÈ¡×Ô¼ºµÄ×Óµ¯
-          const stolenBullets = Math.floor(gameState.opponentBullets / 2);
-          gameState.opponentBullets -= stolenBullets;
-          showNotification(`¶ÔÊÖµÄĞ¡Óã±»¾Ş·´£¬Ê§È¥ÁË${stolenBullets}¿Å×Óµ¯£¡`);
-        } else {
-          // ¶ÔÊÖÎüÈ¡Íæ¼ÒµÄ×Óµ¯
-          const stolenBullets = Math.floor(gameState.playerBullets / 2);
-          gameState.opponentBullets += stolenBullets;
-          gameState.playerBullets -= stolenBullets;
-          showNotification(`¶ÔÊÖµÄĞ¡ÓãÎüÈ¡ÁËÄã${stolenBullets}¿Å×Óµ¯£¡`);
+
+        // è·å–åœ¨çº¿ç©å®¶åˆ—è¡¨ï¼ˆæ¨¡æ‹Ÿï¼‰
+        function getOnlinePlayers() {
+            // ä»ç”¨æˆ·æ•°æ®ä¸­éšæœºé€‰æ‹©ä¸€äº›ä½œä¸ºåœ¨çº¿ç©å®¶
+            const allUsers = Object.values(gameData.users);
+            const onlinePlayers = [];
+            
+            // è¿‡æ»¤æ‰å½“å‰ç”¨æˆ·
+            allUsers.forEach(user => {
+                if (user.username !== gameData.currentUser.username) {
+                    // æ¨¡æ‹Ÿåœ¨çº¿çŠ¶æ€
+                    if (Math.random() < 0.7) { // 70% æ¦‚ç‡åœ¨çº¿
+                        onlinePlayers.push(user);
+                    }
+                }
+            });
+            
+            // å¦‚æœæ²¡æœ‰å…¶ä»–ç”¨æˆ·ï¼Œåˆ›å»ºä¸€äº›æ¨¡æ‹Ÿç”¨æˆ·
+            if (onlinePlayers.length === 0) {
+                const mockPlayers = [
+                    { username: 'ç©å®¶A', score: 15 },
+                    { username: 'ç©å®¶B', score: 8 },
+                    { username: 'ç©å®¶C', score: 22 },
+                    { username: 'ç©å®¶D', score: 5 },
+                    { username: 'ç©å®¶E', score: 11 }
+                ];
+                
+                // éšæœºé€‰æ‹©1-3ä¸ªæ¨¡æ‹Ÿç©å®¶
+                const numPlayers = Math.floor(Math.random() * 3) + 1;
+                for (let i = 0; i < numPlayers; i++) {
+                    onlinePlayers.push(mockPlayers[i]);
+                }
+            }
+            
+            return onlinePlayers;
         }
-        updateBulletDisplay();
-      }
-      
-      // ´¦ÀíÉÏµ¯Ğ§¹û
-      if (playerMove === 'up' && !playerMoveReflected) {
-        gameState.playerBullets++;
-        showNotification('ÄãÉÏÁËÒ»¿Å×Óµ¯£¡');
-      }
-      
-      if (opponentMove === 'up' && !opponentMoveReflected) {
-        gameState.opponentBullets++;
-        showNotification('¶ÔÊÖÉÏÁËÒ»¿Å×Óµ¯£¡');
-      }
-      
-      updateBulletDisplay();
-      
-      // ¼ÆËãÉËº¦
-      let playerDamage = 0;
-      let opponentDamage = 0;
-      
-      // Íæ¼Ò¶Ô¶ÔÊÖÔì³ÉµÄÉËº¦
-      if (!playerMoveReflected && moveRelations[playerMove].beats.includes(opponentMove)) {
-        opponentDamage = moveRelations[playerMove].damage || 0;
-      }
-      
-      // ¶ÔÊÖ¶ÔÍæ¼ÒÔì³ÉµÄÉËº¦
-      if (!opponentMoveReflected && moveRelations[opponentMove].beats.includes(playerMove)) {
-        playerDamage = moveRelations[opponentMove].damage || 0;
-      }
-      
-      // ·´µ¯ÉËº¦
-      if (playerMoveReflected && moveRelations[playerMove].damage) {
-        playerDamage = moveRelations[playerMove].damage;
-      }
-      
-      if (opponentMoveReflected && moveRelations[opponentMove].damage) {
-        opponentDamage = moveRelations[opponentMove].damage;
-      }
-      
-      // Ó¦ÓÃÉËº¦
-      if (playerDamage > 0) {
-        gameState.playerHealth = Math.max(0, gameState.playerHealth - playerDamage);
-        showNotification(`ÄãÊÜµ½ÁË${playerDamage}µãÉËº¦£¡`);
-        animateDamage('player');
-      }
-      
-      if (opponentDamage > 0) {
-        gameState.opponentHealth = Math.max(0, gameState.opponentHealth - opponentDamage);
-        showNotification(`¶ÔÊÖÊÜµ½ÁË${opponentDamage}µãÉËº¦£¡`);
-        animateDamage('opponent');
-      }
-      
-      // ¸üĞÂÉúÃüÖµÏÔÊ¾
-      setTimeout(() => {
-        updateHealthDisplay();
-        
-        // ¼ì²éÓÎÏ·ÊÇ·ñ½áÊø
-        if (gameState.playerHealth <= 0) {
-          endGame('opponent');
-          return;
+
+        // å¤„ç†å›åˆç»“æœ
+        function handleRoundResult(playerMove, opponentMove) {
+            // è®°å½•å¯¹æ‰‹çš„æœ€åä¸€æ‹›
+            gameData.gameState.lastOpponentMove = opponentMove;
+            
+            // æ˜¾ç¤ºå¯¹æ‰‹é€‰æ‹©çš„æ‹›å¼
+            document.getElementById('opponent-move').textContent = gameData.moves[opponentMove].name;
+            document.getElementById('opponent-move').classList.remove('hidden');
+            document.getElementById('opponent-thinking').classList.add('hidden');
+            
+            // è·å–æ‹›å¼æ•°æ®
+            const playerMoveData = gameData.moves[playerMove];
+            const opponentMoveData = gameData.moves[opponentMove];
+            
+            // æˆ˜æ–—ç»“æœåŒºåŸŸ
+            const battleResult = document.getElementById('battle-result');
+            const resultText = document.getElementById('result-text');
+            const resultDescription = document.getElementById('result-description');
+            
+            // åˆå§‹åŒ–ç»“æœ
+            let playerWins = false;
+            let opponentWins = false;
+            let isDraw = false;
+            let description = '';
+            
+            // å¤„ç†ä¸Šå¼¹ï¼ˆå…ˆå¤„ç†ï¼‰
+            if (playerMove === 'reload') {
+                gameData.gameState.playerBullets += 1;
+                description += 'ä½ ä½¿ç”¨äº†ä¸Šå¼¹ï¼Œå­å¼¹+1ã€‚';
+            }
+            
+            if (opponentMove === 'reload') {
+                gameData.gameState.opponentBullets += 1;
+                description += 'å¯¹æ‰‹ä½¿ç”¨äº†ä¸Šå¼¹ï¼Œå­å¼¹+1ã€‚';
+            }
+            
+            // å¤„ç†å°é±¼ï¼ˆåå¤„ç†ï¼Œåœ¨ä¸Šå¼¹ä¹‹åï¼Œç¡®ä¿èƒ½å¸åˆ°å½“å‰å›åˆä¸Šçš„å­å¼¹ï¼‰
+            if (playerMove === 'smallFish') {
+                // æ£€æŸ¥å°é±¼æ˜¯å¦è¢«æŠµæ¶ˆæˆ–æ€æ­»
+                if (['singleGun', 'doubleGun', 'singleReflect', 'landmine', 'wave', 'nuke'].includes(opponentMove)) {
+                    if (['singleGun', 'doubleGun', 'singleReflect', 'landmine'].includes(opponentMove)) {
+                        description += `ä½ çš„å°é±¼ä¸å¯¹æ‰‹çš„${opponentMoveData.name}æŠµæ¶ˆäº†ï¼`;
+                    } else {
+                        description += `ä½ çš„å°é±¼è¢«å¯¹æ‰‹çš„${opponentMoveData.name}æ€æ­»äº†ï¼`;
+                    }
+                } else if (opponentMove === 'megaReflect') {
+                    // å·¨ååå¼¹å°é±¼
+                    const stolenBullets = gameData.gameState.playerBullets;
+                    gameData.gameState.playerBullets = 0;
+                    gameData.gameState.opponentBullets += stolenBullets;
+                    description += 'ä½ çš„å°é±¼è¢«å¯¹æ‰‹çš„å·¨ååå¼¹äº†ï¼ä½ å¤±å»äº†æ‰€æœ‰å­å¼¹ï¼Œå¯¹æ‰‹è·å¾—äº†ä½ çš„å­å¼¹ã€‚';
+                } else {
+                    // å°é±¼å¸å–å­å¼¹ï¼ˆå¸å–æ‰€æœ‰ï¼‰
+                    const stolenBullets = gameData.gameState.opponentBullets;
+                    gameData.gameState.opponentBullets = 0;
+                    gameData.gameState.playerBullets += stolenBullets;
+                    description += `ä½ ä½¿ç”¨äº†å°é±¼ï¼Œå¸å–äº†å¯¹æ‰‹æ‰€æœ‰${stolenBullets}é¢—å­å¼¹ï¼`;
+                }
+            }
+            
+            if (opponentMove === 'smallFish') {
+                // æ£€æŸ¥å°é±¼æ˜¯å¦è¢«æŠµæ¶ˆæˆ–æ€æ­»
+                if (['singleGun', 'doubleGun', 'singleReflect', 'landmine', 'wave', 'nuke'].includes(playerMove)) {
+                    if (['singleGun', 'doubleGun', 'singleReflect', 'landmine'].includes(playerMove)) {
+                        description += `å¯¹æ‰‹çš„å°é±¼ä¸ä½ çš„${playerMoveData.name}æŠµæ¶ˆäº†ï¼`;
+                    } else {
+                        description += `å¯¹æ‰‹çš„å°é±¼è¢«ä½ çš„${playerMoveData.name}æ€æ­»äº†ï¼`;
+                    }
+                } else if (playerMove === 'megaReflect') {
+                    // å·¨ååå¼¹å°é±¼
+                    const stolenBullets = gameData.gameState.opponentBullets;
+                    gameData.gameState.opponentBullets = 0;
+                    gameData.gameState.playerBullets += stolenBullets;
+                    description += 'å¯¹æ‰‹çš„å°é±¼è¢«ä½ çš„å·¨ååå¼¹äº†ï¼å¯¹æ‰‹å¤±å»äº†æ‰€æœ‰å­å¼¹ï¼Œä½ è·å¾—äº†å¯¹æ‰‹çš„å­å¼¹ã€‚';
+                } else {
+                    // å°é±¼å¸å–å­å¼¹ï¼ˆå¸å–æ‰€æœ‰ï¼‰
+                    const stolenBullets = gameData.gameState.playerBullets;
+                    gameData.gameState.playerBullets = 0;
+                    gameData.gameState.opponentBullets += stolenBullets;
+                    description += `å¯¹æ‰‹ä½¿ç”¨äº†å°é±¼ï¼Œå¸å–äº†ä½ æ‰€æœ‰${stolenBullets}é¢—å­å¼¹ï¼`;
+                }
+            }
+            
+            // å¤„ç†åå¼¹
+            let playerMoveToCheck = playerMove;
+            let opponentMoveToCheck = opponentMove;
+            
+            // å•ååå¼¹
+            if (playerMove === 'singleReflect' && ['singleGun', 'doubleGun'].includes(opponentMove)) {
+                opponentMoveToCheck = 'reflected';
+                description += 'ä½ çš„å•ååå¼¹äº†å¯¹æ‰‹çš„æ”»å‡»ï¼';
+                // å‡å°‘AIçš„ç‰¹æ®ŠæŠ€èƒ½æ¬¡æ•°
+                gameData.gameState.opponentSpecialMoves.singleReflect--;
+            }
+            
+            if (opponentMove === 'singleReflect' && ['singleGun', 'doubleGun'].includes(playerMove)) {
+                playerMoveToCheck = 'reflected';
+                description += 'å¯¹æ‰‹çš„å•ååå¼¹äº†ä½ çš„æ”»å‡»ï¼';
+            }
+            
+            // å·¨ååå¼¹
+            if (playerMove === 'megaReflect' && opponentMove !== 'reload') {
+                opponentMoveToCheck = 'reflected';
+                description += 'ä½ çš„å·¨ååå¼¹äº†å¯¹æ‰‹çš„æ”»å‡»ï¼';
+                // å‡å°‘AIçš„ç‰¹æ®ŠæŠ€èƒ½æ¬¡æ•°
+                gameData.gameState.opponentSpecialMoves.megaReflect--;
+            }
+            
+            if (opponentMove === 'megaReflect' && playerMove !== 'reload') {
+                playerMoveToCheck = 'reflected';
+                description += 'å¯¹æ‰‹çš„å·¨ååå¼¹äº†ä½ çš„æ”»å‡»ï¼';
+            }
+            
+            // æ³¢é˜²é˜²å¾¡æ³¢å¹¶åå¼¹åœ°é›·
+            if (playerMove === 'waveShield') {
+                if (opponentMove === 'wave') {
+                    opponentMoveToCheck = 'blocked';
+                    description += 'ä½ çš„æ³¢é˜²é˜²å¾¡äº†å¯¹æ‰‹çš„æ³¢ï¼';
+                } else if (opponentMove === 'landmine') {
+                    opponentMoveToCheck = 'reflected';
+                    description += 'ä½ çš„æ³¢é˜²åå¼¹äº†å¯¹æ‰‹çš„åœ°é›·ï¼';
+                    // å‡å°‘AIçš„ç‰¹æ®ŠæŠ€èƒ½æ¬¡æ•°
+                    gameData.gameState.opponentSpecialMoves.landmine--;
+                }
+            }
+            
+            if (opponentMove === 'waveShield') {
+                if (playerMove === 'wave') {
+                    playerMoveToCheck = 'blocked';
+                    description += 'å¯¹æ‰‹çš„æ³¢é˜²é˜²å¾¡äº†ä½ çš„æ³¢ï¼';
+                } else if (playerMove === 'landmine') {
+                    playerMoveToCheck = 'reflected';
+                    description += 'å¯¹æ‰‹çš„æ³¢é˜²åå¼¹äº†ä½ çš„åœ°é›·ï¼';
+                }
+            }
+            
+            // æ ¸é˜²é˜²å¾¡æ ¸å¼¹ï¼Œä¸åœ°é›·æŠµæ¶ˆ
+            if (playerMove === 'nukeShield') {
+                if (opponentMove === 'nuke') {
+                    opponentMoveToCheck = 'blocked';
+                    description += 'ä½ çš„æ ¸é˜²é˜²å¾¡äº†å¯¹æ‰‹çš„æ ¸å¼¹ï¼';
+                } else if (opponentMove === 'landmine') {
+                    // æ ¸é˜²ä¸åœ°é›·æŠµæ¶ˆ
+                    opponentMoveToCheck = 'blocked';
+                    playerMoveToCheck = 'blocked';
+                    description += 'ä½ çš„æ ¸é˜²ä¸å¯¹æ‰‹çš„åœ°é›·æŠµæ¶ˆäº†ï¼';
+                    // å‡å°‘AIçš„ç‰¹æ®ŠæŠ€èƒ½æ¬¡æ•°
+                    gameData.gameState.opponentSpecialMoves.landmine--;
+                }
+            }
+            
+            if (opponentMove === 'nukeShield') {
+                if (playerMove === 'nuke') {
+                    playerMoveToCheck = 'blocked';
+                    description += 'å¯¹æ‰‹çš„æ ¸é˜²é˜²å¾¡äº†ä½ çš„æ ¸å¼¹ï¼';
+                } else if (playerMove === 'landmine') {
+                    // æ ¸é˜²ä¸åœ°é›·æŠµæ¶ˆ
+                    playerMoveToCheck = 'blocked';
+                    opponentMoveToCheck = 'blocked';
+                    description += 'å¯¹æ‰‹çš„æ ¸é˜²ä¸ä½ çš„åœ°é›·æŠµæ¶ˆäº†ï¼';
+                }
+            }
+            
+            // æ™®é˜²ä¸å•æªã€åŒæªã€åœ°é›·æŠµæ¶ˆ
+            if (playerMove === 'normalShield' && ['singleGun', 'doubleGun', 'landmine'].includes(opponentMove)) {
+                opponentMoveToCheck = 'blocked';
+                playerMoveToCheck = 'blocked';
+                description += 'ä½ çš„æ™®é˜²ä¸å¯¹æ‰‹çš„æ”»å‡»æŠµæ¶ˆäº†ï¼';
+                // å¦‚æœæ˜¯åœ°é›·ï¼Œå‡å°‘AIçš„ç‰¹æ®ŠæŠ€èƒ½æ¬¡æ•°
+                if (opponentMove === 'landmine') {
+                    gameData.gameState.opponentSpecialMoves.landmine--;
+                }
+            }
+            
+            if (opponentMove === 'normalShield' && ['singleGun', 'doubleGun', 'landmine'].includes(playerMove)) {
+                playerMoveToCheck = 'blocked';
+                opponentMoveToCheck = 'blocked';
+                description += 'å¯¹æ‰‹çš„æ™®é˜²ä¸ä½ çš„æ”»å‡»æŠµæ¶ˆäº†ï¼';
+            }
+            
+            // åˆ¤æ–­æ”»å‡»æ˜¯å¦æœ‰æ•ˆ
+            if (playerMoveToCheck !== 'blocked' && playerMoveToCheck !== 'reflected') {
+                if (playerMoveData.counters && playerMoveData.counters.includes(opponentMove)) {
+                    opponentWins = true;
+                    description += `ä½ çš„${playerMoveData.name}å‡»è´¥äº†å¯¹æ‰‹çš„${opponentMoveData.name}ï¼`;
+                }
+            }
+            
+            if (opponentMoveToCheck !== 'blocked' && opponentMoveToCheck !== 'reflected') {
+                if (opponentMoveData.counters && opponentMoveData.counters.includes(playerMove)) {
+                    playerWins = true;
+                    description += `å¯¹æ‰‹çš„${opponentMoveData.name}å‡»è´¥äº†ä½ çš„${playerMoveData.name}ï¼`;
+                }
+            }
+            
+            // å¤„ç†åå¼¹çš„æ”»å‡»
+            if (playerMoveToCheck === 'reflected') {
+                if (opponentMoveData.counters && opponentMoveData.counters.includes(playerMove)) {
+                    playerWins = true;
+                    description += 'åå¼¹çš„æ”»å‡»å¯¹ä½ é€ æˆäº†ä¼¤å®³ï¼';
+                }
+            }
+            
+            if (opponentMoveToCheck === 'reflected') {
+                if (playerMoveData.counters && playerMoveData.counters.includes(opponentMove)) {
+                    opponentWins = true;
+                    description += 'åå¼¹çš„æ”»å‡»å¯¹å¯¹æ‰‹é€ æˆäº†ä¼¤å®³ï¼';
+                }
+            }
+            
+            // åˆ¤æ–­å›åˆç»“æœ
+            if (playerWins && opponentWins) {
+                isDraw = true;
+                resultText.textContent = 'å¹³å±€';
+                resultText.className = 'text-xl font-bold text-yellow-400';
+            } else if (playerWins) {
+                resultText.textContent = 'ä½ è¾“äº†';
+                resultText.className = 'text-xl font-bold text-red-400';
+                gameData.gameState.isGameOver = true;
+                gameData.gameState.winner = 'opponent';
+            } else if (opponentWins) {
+                resultText.textContent = 'ä½ èµ¢äº†';
+                resultText.className = 'text-xl font-bold text-green-400';
+                gameData.gameState.isGameOver = true;
+                gameData.gameState.winner = 'player';
+            } else {
+                isDraw = true;
+                resultText.textContent = 'å¹³å±€';
+                resultText.className = 'text-xl font-bold text-yellow-400';
+            }
+            
+            resultDescription.textContent = description;
+            battleResult.classList.remove('hidden');
+            
+            // æ›´æ–°æ¸¸æˆçŠ¶æ€æ˜¾ç¤º
+            updateGameStateDisplay();
+            
+            // å¦‚æœæ¸¸æˆç»“æŸï¼Œæ˜¾ç¤ºç»“æœ
+            if (gameData.gameState.isGameOver) {
+                setTimeout(() => {
+                    endGame();
+                }, 3000);
+            } else {
+                // è¿›å…¥ä¸‹ä¸€å›åˆ
+                setTimeout(() => {
+                    nextRound();
+                }, 3000);
+            }
         }
-        
-        if (gameState.opponentHealth <= 0) {
-          endGame('player');
-          return;
+
+        // è¿›å…¥ä¸‹ä¸€å›åˆ
+        function nextRound() {
+            // å¢åŠ å›åˆæ•°
+            gameData.gameState.currentRound++;
+            
+            // é‡ç½®å›åˆçŠ¶æ€
+            gameData.gameState.isPlayerTurn = true;
+            
+            // éšè—æˆ˜æ–—ç»“æœ
+            document.getElementById('battle-result').classList.add('hidden');
+            
+            // éšè—æ‹›å¼æ˜¾ç¤º
+            document.getElementById('player-move').classList.add('hidden');
+            document.getElementById('player-select').classList.remove('hidden');
+            document.getElementById('opponent-move').classList.add('hidden');
+            document.getElementById('opponent-thinking').classList.remove('hidden');
+            
+            // æ›´æ–°æ¸¸æˆçŠ¶æ€æ˜¾ç¤º
+            updateGameStateDisplay();
         }
-        
-        // ÏÔÊ¾»ØºÏ½á¹û
-        let resultMessage = '';
-        if (playerDamage > 0 && opponentDamage > 0) {
-          resultMessage = `Ë«·½»¥ÏàÔì³ÉÉËº¦£¡Äã: ${playerDamage}µã, ¶ÔÊÖ: ${opponentDamage}µã`;
-        } else if (playerDamage > 0) {
-          resultMessage = `ÄãÊÜµ½ÁË${playerDamage}µãÉËº¦£¡`;
-        } else if (opponentDamage > 0) {
-          resultMessage = `Äã¶Ô¶ÔÊÖÔì³ÉÁË${opponentDamage}µãÉËº¦£¡`;
-        } else {
-          resultMessage = 'Ë«·½¾ùÎ´Ôì³ÉÉËº¦£¡';
+
+        // ç»“æŸæ¸¸æˆ
+        function endGame() {
+            // è®¡ç®—ç§¯åˆ†å˜åŒ–ï¼ˆä»…åœ¨å•äººæ¨¡å¼ä¸‹ï¼‰
+            if (gameData.gameState.gameMode === 'single') {
+                if (gameData.gameState.winner === 'player') {
+                    gameData.gameState.scoreChange = 2;
+                    gameData.currentUser.score += 2;
+                } else {
+                    gameData.gameState.scoreChange = -1;
+                    if (gameData.currentUser.score > 0) {
+                        gameData.currentUser.score -= 1;
+                    }
+                }
+                
+                // ä¿å­˜ç”¨æˆ·æ•°æ®
+                gameData.users[gameData.currentUser.username] = gameData.currentUser;
+                localStorage.setItem('fishGameUsers', JSON.stringify(gameData.users));
+            } else {
+                gameData.gameState.scoreChange = 0;
+            }
+            
+            // æ›´æ–°æ¸¸æˆç»“æŸç•Œé¢
+            document.getElementById('game-result-title').textContent = gameData.gameState.winner === 'player' ? 'æ­å–œä½ èµ¢äº†ï¼' : 'å¾ˆé—æ†¾ä½ è¾“äº†ï¼';
+            document.getElementById('game-result-message').textContent = gameData.gameState.winner === 'player' ? 'ä½ æˆåŠŸå‡»è´¥äº†å¯¹æ‰‹ï¼' : 'ä½ è¢«å¯¹æ‰‹å‡»è´¥äº†ï¼';
+            
+            document.getElementById('result-game-mode').textContent = gameData.gameState.gameMode === 'practice' ? 'ç»ƒä¹ æ¨¡å¼' : 'å•äººåŒ¹é…';
+            document.getElementById('result-difficulty').textContent = gameData.gameState.difficulty === 'easy' ? 'ç®€å•' : (gameData.gameState.difficulty === 'normal' ? 'æ™®é€š' : 'å›°éš¾');
+            document.getElementById('result-rounds').textContent = gameData.gameState.currentRound;
+            
+            const scoreChangeElement = document.getElementById('result-score-change');
+            scoreChangeElement.textContent = (gameData.gameState.scoreChange > 0 ? '+' : '') + gameData.gameState.scoreChange;
+            scoreChangeElement.className = 'font-bold ' + (gameData.gameState.scoreChange > 0 ? 'text-green-400' : 'text-red-400');
+            
+            document.getElementById('result-current-score').textContent = gameData.currentUser.score;
+            
+            // æ˜¾ç¤ºæ¸¸æˆç»“æŸç•Œé¢
+            showScreen('gameOver');
         }
-        
-        elements.resultMessage.textContent = resultMessage;
-        elements.battleResult.classList.remove('hidden');
-      }, 800);
-    }
-    
-    // ÉËº¦¶¯»­
-    function animateDamage(target) {
-      const avatar = document.getElementById(`${target}-avatar`).parentElement;
-      avatar.classList.add('animate-damage');
-      
-      setTimeout(() => {
-        avatar.classList.remove('animate-damage');
-      }, 500);
-    }
-    
-    // ¼ì²éÕĞÊ½ÊÇ·ñ¿ÉÓÃ
-    function isMoveAvailable(move) {
-      // ¼ì²éÊÇ·ñÓĞÊ¹ÓÃ´ÎÊıÏŞÖÆ
-      if (moveRelations[move].limit) {
-        if (move === 'counterattack' && gameState.playerMoves.counterattack <= 0) {
-          return false;
-        } else if (move === 'mega_counterattack' && gameState.playerMoves.megaCounterattack <= 0) {
-          return false;
-        } else if (move === 'mine' && gameState.playerMoves.mine <= 0) {
-          return false;
-        } else if (move === 'fish' && gameState.playerMoves.fish <= 0) {
-          return false;
+
+        // å¼€å§‹æ–°æ¸¸æˆ
+        function startNewGame() {
+            // é‡ç½®æ¸¸æˆçŠ¶æ€
+            gameData.gameState = {
+                currentRound: 1,
+                playerBullets: 0,
+                opponentBullets: 0,
+                playerSpecialMoves: {
+                    singleReflect: 2,
+                    megaReflect: 1,
+                    landmine: 2,
+                    smallFish: 1
+                },
+                opponentSpecialMoves: {
+                    singleReflect: 2,
+                    megaReflect: 1,
+                    landmine: 2,
+                    smallFish: 1
+                },
+                gameMode: gameData.gameState.gameMode,
+                difficulty: gameData.gameState.difficulty,
+                roomId: gameData.gameState.roomId,
+                isPlayerTurn: true,
+                lastPlayerMove: null,
+                lastOpponentMove: null,
+                isGameOver: false,
+                winner: null,
+                scoreChange: 0,
+                opponentPlayer: gameData.gameState.opponentPlayer || null
+            };
+            
+            // æ›´æ–°æ¸¸æˆç•Œé¢æ˜¾ç¤º
+            document.getElementById('game-mode-display').textContent = gameData.gameState.gameMode === 'practice' ? 'ç»ƒä¹ æ¨¡å¼' : 'å•äººåŒ¹é…';
+            
+            // å•äººæ¨¡å¼ä¸‹æ ¹æ®ç©å®¶ç§¯åˆ†æ˜¾ç¤ºAIéš¾åº¦
+            if (gameData.gameState.gameMode === 'single') {
+                const playerScore = gameData.currentUser ? gameData.currentUser.score : 0;
+                let difficultyText;
+                
+                if (playerScore < 10) {
+                    difficultyText = 'ç®€å•';
+                } else if (playerScore < 30) {
+                    difficultyText = 'æ™®é€š';
+                } else if (playerScore < 60) {
+                    difficultyText = 'å›°éš¾';
+                } else {
+                    difficultyText = 'ä¸“å®¶';
+                }
+                
+                document.getElementById('difficulty-display').textContent = difficultyText;
+            } else {
+                document.getElementById('difficulty-display').textContent = gameData.gameState.difficulty === 'easy' ? 'ç®€å•' : (gameData.gameState.difficulty === 'normal' ? 'æ™®é€š' : 'å›°éš¾');
+            }
+            
+            document.getElementById('player-name').textContent = gameData.currentUser.username;
+            document.getElementById('opponent-name').textContent = gameData.gameState.gameMode === 'practice' ? 'AIå¯¹æ‰‹' : (gameData.gameState.opponentPlayer ? gameData.gameState.opponentPlayer.username : 'å¯¹æ‰‹ç©å®¶');
+            
+            // éšè—æˆ˜æ–—ç»“æœ
+            document.getElementById('battle-result').classList.add('hidden');
+            
+            // éšè—æ‹›å¼æ˜¾ç¤º
+            document.getElementById('player-move').classList.add('hidden');
+            document.getElementById('player-select').classList.remove('hidden');
+            document.getElementById('opponent-move').classList.add('hidden');
+            document.getElementById('opponent-thinking').classList.remove('hidden');
+            
+            // æ›´æ–°æ¸¸æˆçŠ¶æ€æ˜¾ç¤º
+            updateGameStateDisplay();
+            
+            // æ˜¾ç¤ºæ¸¸æˆç•Œé¢
+            showScreen('game');
         }
-      }
-      
-      return true;
-    }
-    
-    // ¼ì²é¶ÔÊÖÕĞÊ½ÊÇ·ñ¿ÉÓÃ
-    function isOpponentMoveAvailable(move) {
-      // ¼ì²éÊÇ·ñÓĞÊ¹ÓÃ´ÎÊıÏŞÖÆ
-      if (moveRelations[move].limit) {
-        if (move === 'counterattack' && gameState.opponentMoves.counterattack <= 0) {
-          return false;
-        } else if (move === 'mega_counterattack' && gameState.opponentMoves.megaCounterattack <= 0) {
-          return false;
-        } else if (move === 'mine' && gameState.opponentMoves.mine <= 0) {
-          return false;
-        } else if (move === 'fish' && gameState.opponentMoves.fish <= 0) {
-          return false;
+
+        // åˆå§‹åŒ–æ¸¸æˆ
+        function initGame() {
+            // ç™»å½•è¡¨å•æäº¤
+            document.getElementById('login-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('login-username').value.trim();
+                const password = document.getElementById('login-password').value;
+                
+                if (!username || !password) {
+                    showNotification('ç™»å½•å¤±è´¥', 'è¯·è¾“å…¥ç”¨æˆ·åå’Œå¯†ç ', 'error');
+                    return;
+                }
+                
+                const user = gameData.users[username];
+                
+                if (!user || user.password !== password) {
+                    showNotification('ç™»å½•å¤±è´¥', 'ç”¨æˆ·åæˆ–å¯†ç é”™è¯¯', 'error');
+                    return;
+                }
+                
+                gameData.currentUser = user;
+                document.getElementById('current-user').textContent = user.username;
+                document.getElementById('current-score').textContent = user.score;
+                
+                showScreen('menu');
+            });
+            
+            // æ³¨å†Œè¡¨å•æäº¤
+            document.getElementById('register-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('register-username').value.trim();
+                const password = document.getElementById('register-password').value;
+                const confirmPassword = document.getElementById('register-confirm-password').value;
+                
+                if (!username || !password || !confirmPassword) {
+                    showNotification('æ³¨å†Œå¤±è´¥', 'è¯·å¡«å†™æ‰€æœ‰å­—æ®µ', 'error');
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    showNotification('æ³¨å†Œå¤±è´¥', 'ä¸¤æ¬¡è¾“å…¥çš„å¯†ç ä¸ä¸€è‡´', 'error');
+                    return;
+                }
+                
+                if (gameData.users[username]) {
+                    showNotification('æ³¨å†Œå¤±è´¥', 'ç”¨æˆ·åå·²å­˜åœ¨', 'error');
+                    return;
+                }
+                
+                // åˆ›å»ºæ–°ç”¨æˆ·
+                const newUser = {
+                    username: username,
+                    password: password,
+                    score: 0,
+                    gameHistory: []
+                };
+                
+                gameData.users[username] = newUser;
+                localStorage.setItem('fishGameUsers', JSON.stringify(gameData.users));
+                
+                showNotification('æ³¨å†ŒæˆåŠŸ', 'è´¦å·åˆ›å»ºæˆåŠŸï¼Œè¯·ç™»å½•', 'success');
+                showScreen('login');
+            });
+            
+            // æ˜¾ç¤ºæ³¨å†Œç•Œé¢
+            document.getElementById('show-register').addEventListener('click', function() {
+                showScreen('register');
+            });
+            
+            // æ˜¾ç¤ºç™»å½•ç•Œé¢
+            document.getElementById('show-login').addEventListener('click', function() {
+                showScreen('login');
+            });
+            
+            // æ˜¾ç¤ºæ¸¸æˆè§„åˆ™
+            document.getElementById('show-rules').addEventListener('click', function() {
+                showScreen('rules');
+            });
+            
+            // ä»èœå•æ˜¾ç¤ºæ¸¸æˆè§„åˆ™
+            document.getElementById('show-rules-from-menu').addEventListener('click', function() {
+                showScreen('rules');
+            });
+            
+            // å…³é—­æ¸¸æˆè§„åˆ™
+            document.getElementById('close-rules').addEventListener('click', function() {
+                if (gameData.currentUser) {
+                    showScreen('menu');
+                } else {
+                    showScreen('login');
+                }
+            });
+            
+            // é€€å‡ºç™»å½•
+            document.getElementById('logout').addEventListener('click', function() {
+                gameData.currentUser = null;
+                showScreen('login');
+            });
+            
+            // åˆ·æ–°æ’è¡Œæ¦œ
+            document.getElementById('refresh-leaderboard').addEventListener('click', function() {
+                updateLeaderboard();
+                showNotification('åˆ·æ–°æˆåŠŸ', 'æ’è¡Œæ¦œå·²æ›´æ–°', 'success');
+            });
+            
+            // ç»ƒä¹ æ¨¡å¼
+            document.getElementById('practice-mode').addEventListener('click', function() {
+                gameData.gameState.gameMode = 'practice';
+                showScreen('difficulty');
+            });
+            
+            // å•äººåŒ¹é…
+            document.getElementById('single-player').addEventListener('click', function() {
+                // è®¾ç½®æ¸¸æˆæ¨¡å¼ä¸ºå•äººåŒ¹é…
+                gameData.gameState.gameMode = 'single';
+                
+                // è·å–åœ¨çº¿ç©å®¶å¹¶åŒ¹é…ä¸€ä¸ªå¯¹æ‰‹
+                const onlinePlayers = getOnlinePlayers();
+                if (onlinePlayers.length > 0) {
+                    // æ‰¾åˆ°ç§¯åˆ†å·®è·æœ€å°çš„ç©å®¶ä½œä¸ºå¯¹æ‰‹
+                    let bestMatch = onlinePlayers[0];
+                    let minScoreDiff = Math.abs(bestMatch.score - gameData.currentUser.score);
+                    
+                    onlinePlayers.forEach(player => {
+                        const scoreDiff = Math.abs(player.score - gameData.currentUser.score);
+                        if (scoreDiff < minScoreDiff) {
+                            minScoreDiff = scoreDiff;
+                            bestMatch = player;
+                        }
+                    });
+                    
+                    gameData.gameState.opponentPlayer = bestMatch;
+                    showNotification('åŒ¹é…æˆåŠŸ', `å·²åŒ¹é…åˆ°å¯¹æ‰‹: ${bestMatch.username}`, 'success');
+                } else {
+                    // å¦‚æœæ²¡æœ‰å…¶ä»–ç©å®¶ï¼Œåˆ›å»ºä¸€ä¸ªAIå¯¹æ‰‹
+                    gameData.gameState.opponentPlayer = {
+                        username: 'AIå¯¹æ‰‹',
+                        score: gameData.currentUser.score
+                    };
+                    showNotification('åŒ¹é…ä¸­', 'æœªæ‰¾åˆ°å…¶ä»–ç©å®¶ï¼Œå·²ä¸ºæ‚¨åŒ¹é…AIå¯¹æ‰‹', 'info');
+                }
+                
+                // å¼€å§‹æ¸¸æˆ
+                startNewGame();
+            });
+            
+            // å¤šäººè”æœº
+            document.getElementById('multi-player').addEventListener('click', function() {
+                // å¤šäººè”æœºåŠŸèƒ½å…³é—­ï¼Œæ˜¾ç¤ºæç¤º
+                showNotification('åŠŸèƒ½æœªå¼€æ”¾', 'å¤šäººè”æœºåŠŸèƒ½å³å°†å¼€æ”¾ï¼Œæ•¬è¯·æœŸå¾…ï¼', 'info');
+            });
+            
+            // éš¾åº¦é€‰æ‹©
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    gameData.gameState.difficulty = this.dataset.difficulty;
+                    startNewGame();
+                });
+            });
+            
+            // è¿”å›ä¸»èœå•ï¼ˆä»éš¾åº¦é€‰æ‹©ï¼‰
+            document.getElementById('back-to-menu-from-difficulty').addEventListener('click', function() {
+                showScreen('menu');
+            });
+            
+            // åˆ›å»ºæˆ¿é—´
+            document.getElementById('create-room').addEventListener('click', function() {
+                // å¤šäººè”æœºåŠŸèƒ½å…³é—­ï¼Œæ˜¾ç¤ºæç¤º
+                showNotification('åŠŸèƒ½æœªå¼€æ”¾', 'å¤šäººè”æœºåŠŸèƒ½å³å°†å¼€æ”¾ï¼Œæ•¬è¯·æœŸå¾…ï¼', 'info');
+            });
+            
+            // å¿«é€ŸåŠ å…¥
+            document.getElementById('quick-join').addEventListener('click', function() {
+                // å¤šäººè”æœºåŠŸèƒ½å…³é—­ï¼Œæ˜¾ç¤ºæç¤º
+                showNotification('åŠŸèƒ½æœªå¼€æ”¾', 'å¤šäººè”æœºåŠŸèƒ½å³å°†å¼€æ”¾ï¼Œæ•¬è¯·æœŸå¾…ï¼', 'info');
+            });
+            
+            // åŠ å…¥æˆ¿é—´
+            document.getElementById('join-room').addEventListener('click', function() {
+                // å¤šäººè”æœºåŠŸèƒ½å…³é—­ï¼Œæ˜¾ç¤ºæç¤º
+                showNotification('åŠŸèƒ½æœªå¼€æ”¾', 'å¤šäººè”æœºåŠŸèƒ½å³å°†å¼€æ”¾ï¼Œæ•¬è¯·æœŸå¾…ï¼', 'info');
+            });
+            
+            // è¿”å›ä¸»èœå•ï¼ˆä»å¤šäººè”æœºï¼‰
+            document.getElementById('back-to-menu-from-multiplayer').addEventListener('click', function() {
+                showScreen('menu');
+            });
+            
+            // è¿”å›ä¸»èœå•ï¼ˆä»å±€åŸŸç½‘å¯¹æˆ˜ï¼‰
+            document.getElementById('back-to-menu-from-lan').addEventListener('click', function() {
+                showScreen('menu');
+            });
+            
+            // åˆ›å»ºå±€åŸŸç½‘æ¸¸æˆ
+            document.getElementById('create-lan-game').addEventListener('click', function() {
+                // å¤šäººè”æœºåŠŸèƒ½å…³é—­ï¼Œæ˜¾ç¤ºæç¤º
+                showNotification('åŠŸèƒ½æœªå¼€æ”¾', 'å¤šäººè”æœºåŠŸèƒ½å³å°†å¼€æ”¾ï¼Œæ•¬è¯·æœŸå¾…ï¼', 'info');
+            });
+            
+            // åŠ å…¥å±€åŸŸç½‘æ¸¸æˆ
+            document.getElementById('join-lan-game').addEventListener('click', function() {
+                // å¤šäººè”æœºåŠŸèƒ½å…³é—­ï¼Œæ˜¾ç¤ºæç¤º
+                showNotification('åŠŸèƒ½æœªå¼€æ”¾', 'å¤šäººè”æœºåŠŸèƒ½å³å°†å¼€æ”¾ï¼Œæ•¬è¯·æœŸå¾…ï¼', 'info');
+            });
+            
+            // å‡†å¤‡
+            document.getElementById('ready-up').addEventListener('click', function() {
+                // å¤šäººè”æœºåŠŸèƒ½å…³é—­ï¼Œæ˜¾ç¤ºæç¤º
+                showNotification('åŠŸèƒ½æœªå¼€æ”¾', 'å¤šäººè”æœºåŠŸèƒ½å³å°†å¼€æ”¾ï¼Œæ•¬è¯·æœŸå¾…ï¼', 'info');
+            });
+            
+            // ç¦»å¼€æˆ¿é—´
+            document.getElementById('leave-room').addEventListener('click', function() {
+                showScreen('multiplayer');
+            });
+            
+            // é€€å‡ºæ¸¸æˆ
+            document.getElementById('exit-game').addEventListener('click', function() {
+                showScreen('menu');
+            });
+            
+            // å†æ¥ä¸€å±€
+            document.getElementById('play-again').addEventListener('click', function() {
+                startNewGame();
+            });
+            
+            // è¿”å›ä¸»èœå•ï¼ˆä»æ¸¸æˆç»“æŸï¼‰
+            document.getElementById('back-to-menu-from-game-over').addEventListener('click', function() {
+                document.getElementById('current-score').textContent = gameData.currentUser.score;
+                showScreen('menu');
+            });
+            
+            // å…³é—­é€šçŸ¥
+            document.getElementById('close-notification').addEventListener('click', function() {
+                hideNotification();
+            });
+            
+            // æ‹›å¼é€‰æ‹©
+            document.querySelectorAll('.move-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const moveId = this.dataset.move;
+                    handlePlayerMove(moveId);
+                });
+            });
+            
+            // æ˜¾ç¤ºç™»å½•ç•Œé¢
+            showScreen('login');
         }
-      }
-      
-      // ¼ì²éÊÇ·ñÂú×ã»ØºÏÏŞÖÆ
-      if (moveRelations[move].roundLimit && gameState.round < moveRelations[move].roundLimit) {
-        return false;
-      }
-      
-      // ¼ì²é×Óµ¯ÊÇ·ñ×ã¹»
-      if (moveRelations[move].cost && gameState.opponentBullets < moveRelations[move].cost) {
-        return false;
-      }
-      
-      return true;
-    }
-    
-    // ¸üĞÂÕĞÊ½Ê¹ÓÃ´ÎÊıÏÔÊ¾
-    function updateMoveLimits() {
-      elements.playerCounterattack.textContent = `${gameState.playerMoves.counterattack}/2`;
-      elements.opponentCounterattack.textContent = `${gameState.opponentMoves.counterattack}/2`;
-      
-      elements.playerMegaCounterattack.textContent = `${gameState.playerMoves.megaCounterattack}/1`;
-      elements.opponentMegaCounterattack.textContent = `${gameState.opponentMoves.megaCounterattack}/1`;
-      
-      elements.playerMine.textContent = `${gameState.playerMoves.mine}/2`;
-      elements.opponentMine.textContent = `${gameState.opponentMoves.mine}/2`;
-      
-      elements.playerFish.textContent = `${gameState.playerMoves.fish}/1`;
-      elements.opponentFish.textContent = `${gameState.opponentMoves.fish}/1`;
-      
-      // ¸üĞÂ°´Å¥×´Ì¬
-      document.querySelector('[data-move="counterattack"]').disabled = gameState.playerMoves.counterattack <= 0;
-      document.querySelector('[data-move="mega_counterattack"]').disabled = gameState.playerMoves.megaCounterattack <= 0 || gameState.round < 4;
-      document.querySelector('[data-move="mine"]').disabled = gameState.playerMoves.mine <= 0 || gameState.round < 4;
-      document.querySelector('[data-move="fish"]').disabled = gameState.playerMoves.fish <= 0;
-    }
-    
-    // ¸üĞÂ×Óµ¯ÏÔÊ¾
-    function updateBulletDisplay() {
-      elements.bulletCounter.textContent = gameState.playerBullets;
-      elements.playerBullets.textContent = `×Óµ¯: ${gameState.playerBullets}`;
-      elements.opponentBullets.textContent = `×Óµ¯: ${gameState.opponentBullets}`;
-    }
-    
-    // ¸üĞÂÉúÃüÖµÏÔÊ¾
-    function updateHealthDisplay() {
-      // Íæ¼ÒÉúÃüÖµ
-      elements.playerHealth.style.width = `${gameState.playerHealth}%`;
-      elements.playerHealthText.textContent = `${gameState.playerHealth}/100`;
-      
-      // ÒÆ³ıÖ®Ç°µÄ×´Ì¬Àà
-      elements.playerHealth.classList.remove('low', 'critical');
-      
-      // Ìí¼ÓĞÂµÄ×´Ì¬Àà
-      if (gameState.playerHealth < 30) {
-        elements.playerHealth.classList.add('critical');
-      } else if (gameState.playerHealth < 60) {
-        elements.playerHealth.classList.add('low');
-      }
-      
-      // ¶ÔÊÖÉúÃüÖµ
-      elements.opponentHealth.style.width = `${gameState.opponentHealth}%`;
-      elements.opponentHealthText.textContent = `${gameState.opponentHealth}/100`;
-      
-      // ÒÆ³ıÖ®Ç°µÄ×´Ì¬Àà
-      elements.opponentHealth.classList.remove('low', 'critical');
-      
-      // Ìí¼ÓĞÂµÄ×´Ì¬Àà
-      if (gameState.opponentHealth < 30) {
-        elements.opponentHealth.classList.add('critical');
-      } else if (gameState.opponentHealth < 60) {
-        elements.opponentHealth.classList.add('low');
-      }
-    }
-    
-    // ¸üĞÂ»ØºÏÏÔÊ¾
-    function updateRoundDisplay() {
-      elements.roundCounter.textContent = gameState.round;
-    }
-    
-    // ½ûÓÃËùÓĞÕĞÊ½°´Å¥
-    function disableAllMoveButtons() {
-      document.querySelectorAll('[data-move]').forEach(button => {
-        button.disabled = true;
-      });
-    }
-    
-    // ÆôÓÃËùÓĞÕĞÊ½°´Å¥
-    function enableAllMoveButtons() {
-      document.querySelectorAll('[data-move]').forEach(button => {
-        const move = button.getAttribute('data-move');
-        button.disabled = !isMoveAvailable(move) || (moveRelations[move].roundLimit && gameState.round < moveRelations[move].roundLimit);
-      });
-    }
-    
-    // ÏÔÊ¾Í¨Öª
-    function showNotification(message) {
-      // ´´½¨Í¨ÖªÔªËØ
-      const notification = document.createElement('div');
-      notification.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-underwater-800 text-white px-6 py-3 rounded-xl shadow-lg z-50 animate-float';
-      notification.textContent = message;
-      
-      // Ìí¼Óµ½Ò³Ãæ
-      document.body.appendChild(notification);
-      
-      // 3ÃëºóÒÆ³ı
-      setTimeout(() => {
-        notification.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-        setTimeout(() => {
-          document.body.removeChild(notification);
-        }, 500);
-      }, 3000);
-    }
-    
-    // ´´½¨±³¾°ÆøÅİ
-    function createBubbles() {
-      // Çå³ıÏÖÓĞÆøÅİ
-      elements.bubblesContainer.innerHTML = '';
-      
-      // ´´½¨10¸öÆøÅİ
-      for (let i = 0; i < 10; i++) {
-        const bubble = document.createElement('div');
-        bubble.className = 'bubble';
-        
-        // Ëæ»ú´óĞ¡
-        const size = Math.random() * 20 + 10;
-        bubble.style.width = `${size}px`;
-        bubble.style.height = `${size}px`;
-        
-        // Ëæ»úÎ»ÖÃ
-        const posX = Math.random() * 100;
-        bubble.style.left = `${posX}%`;
-        bubble.style.bottom = '-50px';
-        
-        // Ëæ»ú¶¯»­ÑÓ³Ù
-        bubble.style.animationDelay = `${Math.random() * 5}s`;
-        
-        // Ëæ»ú¶¯»­³ÖĞøÊ±¼ä
-        const duration = Math.random() * 10 + 10;
-        bubble.style.animationDuration = `${duration}s`;
-        
-        elements.bubblesContainer.appendChild(bubble);
-      }
-    }
-    
-    // ³õÊ¼»¯Ò³Ãæ
-    window.addEventListener('DOMContentLoaded', () => {
-      createBubbles();
-    });
-  </script>
+
+        // é¡µé¢åŠ è½½å®Œæˆååˆå§‹åŒ–æ¸¸æˆ
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
 </body>
 </html>
