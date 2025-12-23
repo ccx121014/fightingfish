@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>划拳小鱼版 - Fist Fight Fish Version</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 通用界面样式 */
+        .screen {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #764ba2;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 登录/注册界面 */
+        #login-screen {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .auth-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+
+        .auth-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        /* 主菜单界面 */
+        #menu-screen {
+            text-align: center;
+        }
+
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            max-width: 300px;
+            width: 100%;
+        }
+
+        /* 游戏界面 */
+        #game-screen {
+            padding: 20px;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+        }
+
+        .round-info {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .players-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .player-panel {
+            width: 45%;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .player-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .player-stats {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .skills-container {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .skills-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .skill-btn {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .skill-btn:hover:not(:disabled) {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .skill-btn.selected {
+            background: #764ba2;
+            color: white;
+            box-shadow: 0 0 10px rgba(118, 75, 162, 0.5);
+        }
+
+        .skill-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .opponent-skills {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .opponent-skill {
+            background: #e0e0e0;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            color: #666;
+        }
+
+        .battle-log {
+            flex: 1;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 5px;
+            border-radius: 5px;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .log-entry.important {
+            background: rgba(118, 75, 162, 0.2);
+            font-weight: bold;
+        }
+
+        /* 结果界面 */
+        #result-screen {
+            text-align: center;
+        }
+
+        .result-message {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .result-message.win {
+            color: #4CAF50;
+        }
+
+        .result-message.lose {
+            color: #F44336;
+        }
+
+        .result-message.draw {
+            color: #FF9800;
+        }
+
+        .result-stats {
+            margin-bottom: 30px;
+            font-size: 1.2rem;
+        }
+
+        /* 排行榜界面 */
+        #ranking-screen {
+            text-align: center;
+        }
+
+        .ranking-list {
+            width: 100%;
+            max-width: 500px;
+            margin: 20px 0;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .ranking-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .ranking-item:last-child {
+            border-bottom: none;
+        }
+
+        .ranking-item.top3 {
+            background: rgba(255, 215, 0, 0.1);
+            font-weight: bold;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .screen {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .players-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .player-panel {
+                width: 100%;
+            }
+
+            .skills-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 登录/注册界面 -->
+        <div id="login-screen" class="screen">
+            <h1>划拳小鱼版</h1>
+            <div class="auth-tabs">
+                <div class="auth-tab active" data-tab="login">登录</div>
+                <div class="auth-tab" data-tab="register">注册</div>
+            </div>
+            
+            <!-- 登录表单 -->
+            <div id="login-form">
+                <div class="form-group">
+                    <label for="login-username">用户名</label>
+                    <input type="text" id="login-username" placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">密码</label>
+                    <input type="password" id="login-password" placeholder="请输入密码">
+                </div>
+                <button class="btn" onclick="login()">登录</button>
+            </div>
+            
+            <!-- 注册表单 -->
+            <div id="register-form" class="hidden">
+                <div class="form-group">
+                    <label for="register-username">用户名</label>
+                    <input type="text" id="register-username" placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label for="register-password">密码</label>
+                    <input type="password" id="register-password" placeholder="请输入密码">
+                </div>
+                <div class="form-group">
+                    <label for="register-confirm">确认密码</label>
+                    <input type="password" id="register-confirm" placeholder="请确认密码">
+                </div>
+                <button class="btn" onclick="register()">注册</button>
+            </div>
+        </div>
+        
+        <!-- 主菜单界面 -->
+        <div id="menu-screen" class="screen hidden">
+            <h1>划拳小鱼版</h1>
+            <div class="menu-buttons">
+                <button class="btn" onclick="startPracticeMode()">练习模式</button>
+                <button class="btn" onclick="startSinglePlayerMode()">单人匹配</button>
+                <button class="btn" onclick="startMultiPlayerMode()">多人联机</button>
+                <button class="btn" onclick="showRanking()">排行榜</button>
+                <button class="btn" onclick="logout()">退出登录</button>
+            </div>
+        </div>
+        
+        <!-- 游戏界面 -->
+        <div id="game-screen" class="screen hidden">
+            <div class="game-header">
+                <div class="round-info">回合: <span id="current-round">1</span></div>
+                <button class="btn" onclick="showMenu()">返回菜单</button>
+            </div>
+            
+            <div class="players-container">
+                <!-- 玩家面板 -->
+                <div class="player-panel">
+                    <div class="player-name" id="player-name">玩家</div>
+                    <div class="player-stats">
+                        <div class="stats-row">
+                            <span>子弹:</span>
+                            <span id="player-bullets">0</span>
+                        </div>
+                        <div class="stats-row">
+                            <span>单反:</span>
+                            <span id="player-single-reflect">2</span>
+                        </div>
+                        <div class="stats-row">
+                            <span>巨反:</span>
+                            <span id="player-mega-reflect">1</span>
+                        </div>
+                        <div class="stats-row">
+                            <span>地雷:</span>
+                            <span id="player-mine">2</span>
+                        </div>
+                        <div class="stats-row">
+                            <span>小鱼:</span>
+                            <span id="player-fish">1</span>
+                        </div>
+                    </div>
+                    
+                    <div class="skills-container">
+                        <div class="skills-title">攻击技能</div>
+                        <div class="skills-grid">
+                            <button class="skill-btn" data-skill="load" onclick="selectSkill('load')">上弹</button>
+                            <button class="skill-btn" data-skill="single" onclick="selectSkill('single')">单枪 (1)</button>
+                            <button class="skill-btn" data-skill="double" onclick="selectSkill('double')">双枪 (2)</button>
+                            <button class="skill-btn" data-skill="wave" onclick="selectSkill('wave')">波 (3)</button>
+                            <button class="skill-btn" data-skill="nuke" onclick="selectSkill('nuke')">核弹 (5)</button>
+                        </div>
+                    </div>
+                    
+                    <div class="skills-container">
+                        <div class="skills-title">防御技能</div>
+                        <div class="skills-grid">
+                            <button class="skill-btn" data-skill="normal_defense" onclick="selectSkill('normal_defense')">普防</button>
+                            <button class="skill-btn" data-skill="wave_defense" onclick="selectSkill('wave_defense')">波防</button>
+                            <button class="skill-btn" data-skill="nuke_defense" onclick="selectSkill('nuke_defense')">核防</button>
+                        </div>
+                    </div>
+                    
+                    <div class="skills-container">
+                        <div class="skills-title">特殊技能</div>
+                        <div class="skills-grid">
+                            <button class="skill-btn" data-skill="single_reflect" onclick="selectSkill('single_reflect')">单反</button>
+                            <button class="skill-btn" data-skill="mega_reflect" onclick="selectSkill('mega_reflect')">巨反</button>
+                            <button class="skill-btn" data-skill="mine" onclick="selectSkill('mine')">地雷</button>
+                            <button class="skill-btn" data-skill="fish" onclick="selectSkill('fish')">小鱼</button>
+                        </div>
+                    </div>
+                    
+                    <button class="btn" id="confirm-skill" onclick="confirmSkill()" disabled>确认出招</button>
+                </div>
+                
+                <!-- 对手面板 -->
+                <div class="player-panel">
+                    <div class="player-name" id="opponent-name">对手</div>
+                    <div class="player-stats">
+                        <div class="stats-row">
+                            <span>子弹:</span>
+                            <span id="opponent-bullets">0</span>
+                        </div>
+                        <div class="stats-row">
+                            <span>单反:</span>
+                            <span id="opponent-single-reflect">2</span>
+                        </div>
+                        <div class="stats-row">
+                            <span>巨反:</span>
+                            <span id="opponent-mega-reflect">1</span>
+                        </div>
+                        <div class="stats-row">
+                            <span>地雷:</span>
+                            <span id="opponent-mine">2</span>
+                        </div>
+                        <div class="stats-row">
+                            <span>小鱼:</span>
+                            <span id="opponent-fish">1</span>
+                        </div>
+                    </div>
+                    
+                    <div class="skills-container">
+                        <div class="skills-title">对手招式</div>
+                        <div class="opponent-skills">
+                            <div class="opponent-skill" id="opponent-skill">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="battle-log" id="battle-log">
+                <div class="log-entry important">战斗开始！</div>
+            </div>
+        </div>
+        
+        <!-- 结果界面 -->
+        <div id="result-screen" class="screen hidden">
+            <h1>战斗结果</h1>
+            <div class="result-message" id="result-message"></div>
+            <div class="result-stats" id="result-stats"></div>
+            <button class="btn" onclick="playAgain()">再玩一次</button>
+            <button class="btn" onclick="showMenu()">返回菜单</button>
+        </div>
+        
+        <!-- 排行榜界面 -->
+        <div id="ranking-screen" class="screen hidden">
+            <h1>排行榜</h1>
+            <div class="ranking-list" id="ranking-list"></div>
+            <button class="btn" onclick="showMenu()">返回菜单</button>
+        </div>
+    </div>
+
+    <script>
+        // 游戏数据
+        let gameData = {
+            round: 1,
+            players: {
+                player: {
+                    name: '玩家',
+                    bullets: 0,
+                    skills: {
+                        singleReflect: 2,
+                        megaReflect: 1,
+                        mine: 2,
+                        fish: 1
+                    },
+                    lastSkill: null,
+                    score: 0
+                },
+                opponent: {
+                    name: '对手',
+                    bullets: 0,
+                    skills: {
+                        singleReflect: 2,
+                        megaReflect: 1,
+                        mine: 2,
+                        fish: 1
+                    },
+                    lastSkill: null,
+                    score: 0
+                }
+            },
+            selectedSkill: null,
+            gameMode: 'practice',
+            currentUser: null
+        };
+
+        // 技能定义
+        const skills = {
+            load: { name: '上弹', type: 'attack', cost: 0, effect: '子弹+1' },
+            single: { name: '单枪', type: 'attack', cost: 1, 克制: ['load', 'wave_defense', 'nuke_defense'], 被克: ['normal_defense', 'single_reflect'] },
+            double: { name: '双枪', type: 'attack', cost: 2, 克制: ['load', 'wave_defense', 'single', 'nuke_defense', 'mine'], 被克: ['normal_defense', 'single_reflect'] },
+            wave: { name: '波', type: 'attack', cost: 3, 克制: ['load', 'single', 'normal_defense', 'single_reflect', 'nuke_defense', 'mine', 'double', 'fish'], 被克: ['wave_defense'] },
+            nuke: { name: '核弹', type: 'attack', cost: 5, 克制: ['load', 'single', 'normal_defense', 'single_reflect', 'wave_defense', 'mine', 'double', 'fish'], 被克: ['nuke_defense', 'mega_reflect'] },
+            normal_defense: { name: '普防', type: 'defense', cost: 0, 克制: ['single', 'double'], 被克: ['wave'] },
+            wave_defense: { name: '波防', type: 'defense', cost: 0, 克制: ['wave', 'fish'], 反弹: ['mine'] },
+            nuke_defense: { name: '核防', type: 'defense', cost: 0, 克制: ['nuke', 'mine'] },
+            single_reflect: { name: '单反', type: 'special', cost: 0, 反弹: ['single', 'double'], limit: 2, cooldown: 1 },
+            mega_reflect: { name: '巨反', type: 'special', cost: 0, 反弹: ['single', 'double', 'wave', 'nuke', 'mine'], limit: 1, minRound: 4 },
+            mine: { name: '地雷', type: 'special', cost: 0, 克制: ['load', 'single'], limit: 2, cooldown: 1, minRound: 4 },
+            fish: { name: '小鱼', type: 'special', cost: 0, 效果: '吸取子弹', limit: 1 }
+        };
+
+        // 用户数据
+        let users = JSON.parse(localStorage.getItem('fistgame-users')) || {};
+        let rankings = JSON.parse(localStorage.getItem('fistgame-rankings')) || [];
+
+        // 初始化游戏
+        function initGame() {
+            // 禁用右键和Ctrl键
+            document.addEventListener('contextmenu', e => e.preventDefault());
+            document.addEventListener('keydown', e => {
+                if (e.ctrlKey) {
+                    e.preventDefault();
+                    alert('Ctrl键已禁用，防止代码窃取！');
+                }
+            });
+
+            // 初始化登录界面标签
+            initAuthTabs();
+
+            // 显示登录界面
+            showScreen('login-screen');
+        }
+
+        // 初始化登录/注册标签
+        function initAuthTabs() {
+            const tabs = document.querySelectorAll('.auth-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById('login-form').classList.toggle('hidden', tabId !== 'login');
+                    document.getElementById('register-form').classList.toggle('hidden', tabId !== 'register');
+                });
+            });
+        }
+
+        // 显示指定界面
+        function showScreen(screenId) {
+            const screens = document.querySelectorAll('.screen');
+            screens.forEach(screen => screen.classList.add('hidden'));
+            document.getElementById(screenId).classList.remove('hidden');
+        }
+
+        // 登录功能
+        function login() {
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+
+            if (!username || !password) {
+                alert('请输入用户名和密码！');
+                return;
+            }
+
+            if (users[username] && users[username].password === password) {
+                gameData.currentUser = username;
+                gameData.players.player.name = username;
+                gameData.players.player.score = users[username].score || 0;
+                showMenu();
+            } else {
+                alert('用户名或密码错误！');
+            }
+        }
+
+        // 注册功能
+        function register() {
+            const username = document.getElementById('register-username').value;
+            const password = document.getElementById('register-password').value;
+            const confirm = document.getElementById('register-confirm').value;
+
+            if (!username || !password || !confirm) {
+                alert('请填写所有字段！');
+                return;
+            }
+
+            if (password !== confirm) {
+                alert('两次输入的密码不一致！');
+                return;
+            }
+
+            if (users[username]) {
+                alert('用户名已存在！');
+                return;
+            }
+
+            users[username] = {
+                password: password,
+                score: 0
+            };
+
+            localStorage.setItem('fistgame-users', JSON.stringify(users));
+            updateRankings();
+            alert('注册成功！');
+            
+            // 切换到登录表单
+            document.querySelector('.auth-tab[data-tab="login"]').click();
+        }
+
+        // 显示主菜单
+        function showMenu() {
+            showScreen('menu-screen');
+        }
+
+        // 退出登录
+        function logout() {
+            gameData.currentUser = null;
+            showScreen('login-screen');
+        }
+
+        // 开始练习模式
+        function startPracticeMode() {
+            gameData.gameMode = 'practice';
+            startGame();
+        }
+
+        // 开始单人匹配模式
+        function startSinglePlayerMode() {
+            gameData.gameMode = 'single';
+            startGame();
+        }
+
+        // 开始多人联机模式（占位符）
+        function startMultiPlayerMode() {
+            alert('多人联机模式正在开发中！');
+        }
+
+        // 开始游戏
+        function startGame() {
+            // 重置游戏数据
+            resetGameData();
+            
+            // 初始化游戏界面
+            updateGameUI();
+            clearBattleLog();
+            addBattleLog('战斗开始！', true);
+            
+            // 显示游戏界面
+            showScreen('game-screen');
+        }
+
+        // 重置游戏数据
+        function resetGameData() {
+            gameData.round = 1;
+            gameData.selectedSkill = null;
+            
+            // 重置玩家数据
+            gameData.players.player.bullets = 0;
+            gameData.players.player.skills = {
+                singleReflect: 2,
+                megaReflect: 1,
+                mine: 2,
+                fish: 1
+            };
+            gameData.players.player.lastSkill = null;
+            
+            // 重置对手数据
+            gameData.players.opponent.bullets = 0;
+            gameData.players.opponent.skills = {
+                singleReflect: 2,
+                megaReflect: 1,
+                mine: 2,
+                fish: 1
+            };
+            gameData.players.opponent.lastSkill = null;
+        }
+
+        // 更新游戏界面
+        function updateGameUI() {
+            // 更新回合数
+            document.getElementById('current-round').textContent = gameData.round;
+            
+            // 更新玩家数据
+            updatePlayerUI('player');
+            updatePlayerUI('opponent');
+            
+            // 更新技能按钮状态
+            updateSkillButtons();
+        }
+
+        // 更新玩家界面
+        function updatePlayerUI(playerType) {
+            const player = gameData.players[playerType];
+            const prefix = playerType === 'player' ? 'player' : 'opponent';
+            
+            document.getElementById(`${prefix}-bullets`).textContent = player.bullets;
+            document.getElementById(`${prefix}-single-reflect`).textContent = player.skills.singleReflect;
+            document.getElementById(`${prefix}-mega-reflect`).textContent = player.skills.megaReflect;
+            document.getElementById(`${prefix}-mine`).textContent = player.skills.mine;
+            document.getElementById(`${prefix}-fish`).textContent = player.skills.fish;
+        }
+
+        // 更新技能按钮状态
+        function updateSkillButtons() {
+            const buttons = document.querySelectorAll('.skill-btn');
+            const player = gameData.players.player;
+            
+            buttons.forEach(btn => {
+                const skillKey = btn.getAttribute('data-skill');
+                const skill = skills[skillKey];
+                
+                // 重置按钮状态
+                btn.classList.remove('selected');
+                btn.disabled = false;
+                
+                // 检查子弹消耗
+                if (skill.cost > 0 && player.bullets < skill.cost) {
+                    btn.disabled = true;
+                }
+                
+                // 检查特殊技能限制
+                if (skillKey === 'single_reflect' && player.skills.singleReflect <= 0) {
+                    btn.disabled = true;
+                }
+                if (skillKey === 'mega_reflect' && (player.skills.megaReflect <= 0 || gameData.round < 4)) {
+                    btn.disabled = true;
+                }
+                if (skillKey === 'mine' && (player.skills.mine <= 0 || gameData.round < 4 || player.lastSkill === 'mine')) {
+                    btn.disabled = true;
+                }
+                if (skillKey === 'fish' && player.skills.fish <= 0) {
+                    btn.disabled = true;
+                }
+                
+                // 检查单反冷却
+                if (skillKey === 'single_reflect' && player.lastSkill === 'single_reflect') {
+                    btn.disabled = true;
+                }
+            });
+        }
+
+        // 选择技能
+        function selectSkill(skillKey) {
+            // 取消之前选择的技能
+            document.querySelectorAll('.skill-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // 选择新技能
+            gameData.selectedSkill = skillKey;
+            const btn = document.querySelector(`[data-skill="${skillKey}"]`);
+            btn.classList.add('selected');
+            
+            // 启用确认按钮
+            document.getElementById('confirm-skill').disabled = false;
+        }
+
+        // 确认技能
+        function confirmSkill() {
+            if (!gameData.selectedSkill) {
+                alert('请选择一个技能！');
+                return;
+            }
+            
+            // 执行回合
+            executeRound();
+        }
+
+        // 执行回合
+        function executeRound() {
+            const playerSkill = gameData.selectedSkill;
+            const opponentSkill = getAISkill();
+            
+            // 显示对手技能
+            document.getElementById('opponent-skill').textContent = skills[opponentSkill].name;
+            
+            // 记录所选技能
+            gameData.players.player.lastSkill = playerSkill;
+            gameData.players.opponent.lastSkill = opponentSkill;
+            
+            // 添加战斗日志
+            addBattleLog(`${gameData.players.player.name} 使用了 ${skills[playerSkill].name}`);
+            addBattleLog(`${gameData.players.opponent.name} 使用了 ${skills[opponentSkill].name}`);
+            
+            // 处理技能效果
+            processSkills(playerSkill, opponentSkill);
+            
+            // 检查战斗结束
+            setTimeout(() => {
+                checkBattleEnd();
+            }, 1000);
+        }
+
+        // AI选择技能
+        function getAISkill() {
+            const opponent = gameData.players.opponent;
+            const player = gameData.players.player;
+            const availableSkills = [];
+            
+            // 收集可用技能
+            for (const [key, skill] of Object.entries(skills)) {
+                let available = true;
+                
+                // 检查子弹消耗
+                if (skill.cost > 0 && opponent.bullets < skill.cost) {
+                    available = false;
+                }
+                
+                // 检查特殊技能限制
+                if (key === 'single_reflect' && (opponent.skills.singleReflect <= 0 || opponent.lastSkill === 'single_reflect')) {
+                    available = false;
+                }
+                if (key === 'mega_reflect' && (opponent.skills.megaReflect <= 0 || gameData.round < 4)) {
+                    available = false;
+                }
+                if (key === 'mine' && (opponent.skills.mine <= 0 || gameData.round < 4 || opponent.lastSkill === 'mine')) {
+                    available = false;
+                }
+                if (key === 'fish' && opponent.skills.fish <= 0) {
+                    available = false;
+                }
+                
+                if (available) {
+                    availableSkills.push(key);
+                }
+            }
+            
+            // 改进的AI逻辑，更具策略性
+            
+            // 1. 考虑玩家的子弹数量和技能使用情况
+            // 如果玩家有很多子弹，考虑防御
+            if (player.bullets >= 3 && availableSkills.includes('wave_defense')) {
+                return 'wave_defense';
+            } else if (player.bullets >= 5 && availableSkills.includes('nuke_defense')) {
+                return 'nuke_defense';
+            }
+            
+            // 2. 特殊技能的使用策略
+            // 当玩家上弹时，考虑使用地雷
+            if (player.lastSkill === 'load' && availableSkills.includes('mine')) {
+                return 'mine';
+            }
+            
+            // 当玩家有很多子弹时，考虑使用巨反
+            if (player.bullets >= 3 && availableSkills.includes('mega_reflect')) {
+                return 'mega_reflect';
+            }
+            
+            // 3. 子弹管理策略
+            // 前几回合优先上弹，但不是每次都上弹
+            if (gameData.round < 3 && opponent.bullets < 3 && availableSkills.includes('load') && Math.random() < 0.7) {
+                return 'load';
+            }
+            
+            // 4. 攻击技能选择
+            // 有足够子弹时使用攻击技能，但考虑克制关系
+            if (opponent.bullets >= 5 && availableSkills.includes('nuke')) {
+                return 'nuke';
+            } else if (opponent.bullets >= 3 && availableSkills.includes('wave')) {
+                return 'wave';
+            } else if (opponent.bullets >= 2 && availableSkills.includes('double')) {
+                return 'double';
+            } else if (opponent.bullets >= 1 && availableSkills.includes('single')) {
+                return 'single';
+            }
+            
+            // 5. 防御技能的使用
+            // 如果没有足够子弹攻击，考虑防御
+            if (opponent.bullets < 1 && availableSkills.includes('normal_defense')) {
+                return 'normal_defense';
+            }
+            
+            // 6. 小鱼技能的使用策略
+            // 当玩家有很多子弹时，考虑使用小鱼
+            if (player.bullets >= 2 && availableSkills.includes('fish')) {
+                return 'fish';
+            }
+            
+            // 随机选择
+            return availableSkills[Math.floor(Math.random() * availableSkills.length)];
+        }
+
+        // 处理技能效果
+        function processSkills(playerSkill, opponentSkill) {
+            const player = gameData.players.player;
+            const opponent = gameData.players.opponent;
+            
+            // 处理玩家技能
+            processPlayerSkill(playerSkill, player, opponent);
+            
+            // 处理对手技能
+            processPlayerSkill(opponentSkill, opponent, player);
+            
+            // 处理特殊互动
+            processSkillInteractions(playerSkill, opponentSkill);
+            
+            // 回合结束，更新数据
+            gameData.round++;
+        }
+
+        // 处理单个玩家的技能
+        function processPlayerSkill(skillKey, user, target) {
+            const skill = skills[skillKey];
+            
+            // 消耗子弹
+            if (skill.cost > 0) {
+                user.bullets -= skill.cost;
+            }
+            
+            // 消耗特殊技能次数
+            if (skillKey === 'single_reflect') {
+                user.skills.singleReflect--;
+            } else if (skillKey === 'mega_reflect') {
+                user.skills.megaReflect--;
+            } else if (skillKey === 'mine') {
+                user.skills.mine--;
+            } else if (skillKey === 'fish') {
+                user.skills.fish--;
+            }
+            
+            // 处理上弹效果
+            if (skillKey === 'load') {
+                user.bullets++;
+                addBattleLog(`${user.name} 上弹成功，子弹+1`);
+            }
+        }
+
+        // 处理技能互动
+        function processSkillInteractions(playerSkill, opponentSkill) {
+            const player = gameData.players.player;
+            const opponent = gameData.players.opponent;
+            let playerSkillReflected = false;
+            let opponentSkillReflected = false;
+            let skillsCancelled = false;
+            
+            // 处理反弹效果（优先）
+            playerSkillReflected = processReflection(playerSkill, opponentSkill, player, opponent);
+            opponentSkillReflected = processReflection(opponentSkill, playerSkill, opponent, player);
+            
+            // 只有未被反弹的技能才继续处理克制关系和小鱼效果
+            if (!playerSkillReflected && !opponentSkillReflected) {
+                // 处理克制关系
+                skillsCancelled = processCounter(playerSkill, opponentSkill, player, opponent) || 
+                                 processCounter(opponentSkill, playerSkill, opponent, player);
+                
+                // 只有当技能没有互相抵消时才处理小鱼效果
+                if (!skillsCancelled) {
+                    // 处理小鱼效果
+                    if (playerSkill === 'fish' && opponentSkill !== 'fish') {
+                        processFishEffect(player, opponent, opponentSkill);
+                    } else if (opponentSkill === 'fish' && playerSkill !== 'fish') {
+                        processFishEffect(opponent, player, playerSkill);
+                    }
+                }
+            }
+        }
+
+        // 处理小鱼效果
+        function processFishEffect(user, target, targetSkill) {
+            if (targetSkill === 'mega_reflect') {
+                // 对方使用巨反，吸子弹者子弹清空，被吸者获得其子弹
+                const tempBullets = user.bullets;
+                user.bullets = 0;
+                target.bullets += tempBullets;
+                addBattleLog(`${target.name} 使用了巨反，${user.name} 的小鱼被反弹，失去了 ${tempBullets} 颗子弹！`, true);
+            } else {
+                // 正常吸取子弹
+                const stolenBullets = target.bullets;
+                user.bullets += stolenBullets;
+                target.bullets = 0;
+                
+                // 如果对方上弹，因为上弹效果已经在processPlayerSkill中处理，所以直接记录
+                if (targetSkill === 'load') {
+                    addBattleLog(`${user.name} 使用小鱼成功，吸取了 ${stolenBullets} 颗子弹（包括对方刚上的1颗）！`, true);
+                } else {
+                    addBattleLog(`${user.name} 使用小鱼成功，吸取了 ${stolenBullets} 颗子弹！`, true);
+                }
+            }
+        }
+
+        // 处理反弹效果
+        function processReflection(attackerSkill, defenderSkill, attacker, defender) {
+            const defenderSkillObj = skills[defenderSkill];
+            
+            if (defenderSkillObj.反弹 && defenderSkillObj.反弹.includes(attackerSkill)) {
+                // 反弹成功
+                addBattleLog(`${defender.name} 反弹了 ${attacker.name} 的 ${skills[attackerSkill].name}！`, true);
+                
+                // 反弹效果等于被反弹技能的效果
+                if (attackerSkill === 'mine') {
+                    // 地雷反弹，攻击者受到伤害
+                    addBattleLog(`${attacker.name} 受到了自己地雷的伤害！`, true);
+                    endBattle(defender.name);
+                } else if (attackerSkill === 'single' || attackerSkill === 'double' || attackerSkill === 'wave' || attackerSkill === 'nuke') {
+                    // 反弹攻击，攻击者受到伤害
+                    addBattleLog(`${attacker.name} 受到了自己${skills[attackerSkill].name}的伤害！`, true);
+                    endBattle(defender.name);
+                }
+                return true; // 表示成功反弹
+            }
+            return false; // 表示未反弹
+        }
+
+        // 处理克制关系
+        function processCounter(attackerSkill, defenderSkill, attacker, defender) {
+            const attackerSkillObj = skills[attackerSkill];
+            const defenderSkillObj = skills[defenderSkill];
+            
+            // 检查攻击是否克制防御
+            if (attackerSkillObj.克制 && attackerSkillObj.克制.includes(defenderSkill)) {
+                // 攻击克制防御
+                addBattleLog(`${attacker.name} 的 ${attackerSkillObj.name} 克制了 ${defender.name} 的 ${skills[defenderSkill].name}！`, true);
+                endBattle(attacker.name);
+                return false; // 战斗已结束，没有抵消
+            }
+            // 检查防御是否克制攻击
+            else if (defenderSkillObj.克制 && defenderSkillObj.克制.includes(attackerSkill)) {
+                // 防御成功抵挡攻击
+                addBattleLog(`${defender.name} 的 ${defenderSkillObj.name} 成功抵挡了 ${attacker.name} 的 ${attackerSkillObj.name}！`, true);
+                return false; // 只是抵挡，没有抵消
+            }
+            // 检查技能是否互相抵消
+            else if ((attackerSkill === 'fish' && (defenderSkill === 'single_reflect' || defenderSkill === 'single' || defenderSkill === 'double' || defenderSkill === 'mine')) ||
+                     (defenderSkill === 'fish' && (attackerSkill === 'single_reflect' || attackerSkill === 'single' || attackerSkill === 'double' || attackerSkill === 'mine'))) {
+                // 技能互相抵消
+                addBattleLog(`${attacker.name} 的 ${attackerSkillObj.name} 与 ${defender.name} 的 ${defenderSkillObj.name} 互相抵消！`, true);
+                return true; // 技能互相抵消
+            }
+            
+            return false; // 默认没有抵消
+        }
+
+        // 检查战斗结束
+        function checkBattleEnd() {
+            // 更新UI
+            updateGameUI();
+            
+            // 重置选择
+            gameData.selectedSkill = null;
+            document.getElementById('confirm-skill').disabled = true;
+            document.querySelectorAll('.skill-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+        }
+
+        // 结束战斗
+        function endBattle(winnerName) {
+            setTimeout(() => {
+                let result = '';
+                let resultClass = '';
+                
+                if (winnerName === gameData.players.player.name) {
+                    result = '恭喜你获胜了！';
+                    resultClass = 'win';
+                    if (gameData.gameMode !== 'practice' && gameData.currentUser) {
+                        // 更新积分
+                        users[gameData.currentUser].score += 2;
+                        localStorage.setItem('fistgame-users', JSON.stringify(users));
+                        updateRankings();
+                    }
+                } else {
+                    result = '很遗憾，你失败了！';
+                    resultClass = 'lose';
+                    if (gameData.gameMode !== 'practice' && gameData.currentUser) {
+                        // 更新积分
+                        users[gameData.currentUser].score = Math.max(0, users[gameData.currentUser].score - 1);
+                        localStorage.setItem('fistgame-users', JSON.stringify(users));
+                        updateRankings();
+                    }
+                }
+                
+                // 显示结果界面
+                document.getElementById('result-message').textContent = result;
+                document.getElementById('result-message').className = `result-message ${resultClass}`;
+                
+                const stats = `战斗回合: ${gameData.round}\n` +
+                             `${gameData.players.player.name} 子弹: ${gameData.players.player.bullets}\n` +
+                             `${gameData.players.opponent.name} 子弹: ${gameData.players.opponent.bullets}`;
+                document.getElementById('result-stats').textContent = stats;
+                
+                showScreen('result-screen');
+            }, 1000);
+        }
+
+        // 更新排行榜
+        function updateRankings() {
+            rankings = [];
+            for (const [username, data] of Object.entries(users)) {
+                rankings.push({ username, score: data.score });
+            }
+            
+            // 按积分排序
+            rankings.sort((a, b) => b.score - a.score);
+            
+            // 保存排行榜
+            localStorage.setItem('fistgame-rankings', JSON.stringify(rankings));
+        }
+
+        // 显示排行榜
+        function showRanking() {
+            const rankingList = document.getElementById('ranking-list');
+            rankingList.innerHTML = '';
+            
+            if (rankings.length === 0) {
+                rankingList.innerHTML = '<div class="ranking-item">暂无排行榜数据</div>';
+            } else {
+                rankings.forEach((item, index) => {
+                    const rankingItem = document.createElement('div');
+                    rankingItem.className = `ranking-item ${index < 3 ? 'top3' : ''}`;
+                    rankingItem.innerHTML = `
+                        <div>${index + 1}. ${item.username}</div>
+                        <div>${item.score} 分</div>
+                    `;
+                    rankingList.appendChild(rankingItem);
+                });
+            }
+            
+            showScreen('ranking-screen');
+        }
+
+        // 再玩一次
+        function playAgain() {
+            startGame();
+        }
+
+        // 添加战斗日志
+        function addBattleLog(message, important = false) {
+            const battleLog = document.getElementById('battle-log');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${important ? 'important' : ''}`;
+            logEntry.textContent = message;
+            battleLog.appendChild(logEntry);
+            battleLog.scrollTop = battleLog.scrollHeight;
+        }
+
+        // 清空战斗日志
+        function clearBattleLog() {
+            document.getElementById('battle-log').innerHTML = '';
+        }
+
+        // 页面加载完成后初始化游戏
+        window.onload = initGame;
+    </script>
+</body>
+</html>
